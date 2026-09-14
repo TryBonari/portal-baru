@@ -11,4 +11,5 @@
 export type * from './models/User'
 export type * from './models/Student'
 export type * from './models/StudentAccessCode'
+export type * from './models/Announcement'
 export type * from './commonInputTypes'

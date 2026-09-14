@@ -32,3 +32,8 @@ export type Student = Prisma.StudentModel
  * 
  */
 export type StudentAccessCode = Prisma.StudentAccessCodeModel
+/**
+ * Model Announcement
+ * 
+ */
+export type Announcement = Prisma.AnnouncementModel

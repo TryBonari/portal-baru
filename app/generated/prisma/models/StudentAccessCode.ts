@@ -216,6 +216,7 @@ export type StudentAccessCodeWhereInput = {
   status?: Prisma.EnumAccessCodeStatusFilter<"StudentAccessCode"> | $Enums.AccessCodeStatus
   createdAt?: Prisma.DateTimeFilter<"StudentAccessCode"> | Date | string
   usedAt?: Prisma.DateTimeNullableFilter<"StudentAccessCode"> | Date | string | null
+  student?: Prisma.XOR<Prisma.StudentNullableScalarRelationFilter, Prisma.StudentWhereInput> | null
 }
 
 export type StudentAccessCodeOrderByWithRelationInput = {
@@ -224,6 +225,7 @@ export type StudentAccessCodeOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   usedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  student?: Prisma.StudentOrderByWithRelationInput
 }
 
 export type StudentAccessCodeWhereUniqueInput = Prisma.AtLeast<{
@@ -235,6 +237,7 @@ export type StudentAccessCodeWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumAccessCodeStatusFilter<"StudentAccessCode"> | $Enums.AccessCodeStatus
   createdAt?: Prisma.DateTimeFilter<"StudentAccessCode"> | Date | string
   usedAt?: Prisma.DateTimeNullableFilter<"StudentAccessCode"> | Date | string | null
+  student?: Prisma.XOR<Prisma.StudentNullableScalarRelationFilter, Prisma.StudentWhereInput> | null
 }, "id" | "code">
 
 export type StudentAccessCodeOrderByWithAggregationInput = {
@@ -266,6 +269,7 @@ export type StudentAccessCodeCreateInput = {
   status?: $Enums.AccessCodeStatus
   createdAt?: Date | string
   usedAt?: Date | string | null
+  student?: Prisma.StudentCreateNestedOneWithoutStudentAccessCodeInput
 }
 
 export type StudentAccessCodeUncheckedCreateInput = {
@@ -274,6 +278,7 @@ export type StudentAccessCodeUncheckedCreateInput = {
   status?: $Enums.AccessCodeStatus
   createdAt?: Date | string
   usedAt?: Date | string | null
+  student?: Prisma.StudentUncheckedCreateNestedOneWithoutStudentAccessCodeInput
 }
 
 export type StudentAccessCodeUpdateInput = {
@@ -281,6 +286,7 @@ export type StudentAccessCodeUpdateInput = {
   status?: Prisma.EnumAccessCodeStatusFieldUpdateOperationsInput | $Enums.AccessCodeStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  student?: Prisma.StudentUpdateOneWithoutStudentAccessCodeNestedInput
 }
 
 export type StudentAccessCodeUncheckedUpdateInput = {
@@ -289,6 +295,7 @@ export type StudentAccessCodeUncheckedUpdateInput = {
   status?: Prisma.EnumAccessCodeStatusFieldUpdateOperationsInput | $Enums.AccessCodeStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  student?: Prisma.StudentUncheckedUpdateOneWithoutStudentAccessCodeNestedInput
 }
 
 export type StudentAccessCodeCreateManyInput = {
@@ -312,6 +319,11 @@ export type StudentAccessCodeUncheckedUpdateManyInput = {
   status?: Prisma.EnumAccessCodeStatusFieldUpdateOperationsInput | $Enums.AccessCodeStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type StudentAccessCodeScalarRelationFilter = {
+  is?: Prisma.StudentAccessCodeWhereInput
+  isNot?: Prisma.StudentAccessCodeWhereInput
 }
 
 export type StudentAccessCodeCountOrderByAggregateInput = {
@@ -346,12 +358,72 @@ export type StudentAccessCodeSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
 }
 
+export type StudentAccessCodeCreateNestedOneWithoutStudentInput = {
+  create?: Prisma.XOR<Prisma.StudentAccessCodeCreateWithoutStudentInput, Prisma.StudentAccessCodeUncheckedCreateWithoutStudentInput>
+  connectOrCreate?: Prisma.StudentAccessCodeCreateOrConnectWithoutStudentInput
+  connect?: Prisma.StudentAccessCodeWhereUniqueInput
+}
+
+export type StudentAccessCodeUpdateOneRequiredWithoutStudentNestedInput = {
+  create?: Prisma.XOR<Prisma.StudentAccessCodeCreateWithoutStudentInput, Prisma.StudentAccessCodeUncheckedCreateWithoutStudentInput>
+  connectOrCreate?: Prisma.StudentAccessCodeCreateOrConnectWithoutStudentInput
+  upsert?: Prisma.StudentAccessCodeUpsertWithoutStudentInput
+  connect?: Prisma.StudentAccessCodeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StudentAccessCodeUpdateToOneWithWhereWithoutStudentInput, Prisma.StudentAccessCodeUpdateWithoutStudentInput>, Prisma.StudentAccessCodeUncheckedUpdateWithoutStudentInput>
+}
+
 export type EnumAccessCodeStatusFieldUpdateOperationsInput = {
   set?: $Enums.AccessCodeStatus
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type StudentAccessCodeCreateWithoutStudentInput = {
+  code: string
+  status?: $Enums.AccessCodeStatus
+  createdAt?: Date | string
+  usedAt?: Date | string | null
+}
+
+export type StudentAccessCodeUncheckedCreateWithoutStudentInput = {
+  id?: number
+  code: string
+  status?: $Enums.AccessCodeStatus
+  createdAt?: Date | string
+  usedAt?: Date | string | null
+}
+
+export type StudentAccessCodeCreateOrConnectWithoutStudentInput = {
+  where: Prisma.StudentAccessCodeWhereUniqueInput
+  create: Prisma.XOR<Prisma.StudentAccessCodeCreateWithoutStudentInput, Prisma.StudentAccessCodeUncheckedCreateWithoutStudentInput>
+}
+
+export type StudentAccessCodeUpsertWithoutStudentInput = {
+  update: Prisma.XOR<Prisma.StudentAccessCodeUpdateWithoutStudentInput, Prisma.StudentAccessCodeUncheckedUpdateWithoutStudentInput>
+  create: Prisma.XOR<Prisma.StudentAccessCodeCreateWithoutStudentInput, Prisma.StudentAccessCodeUncheckedCreateWithoutStudentInput>
+  where?: Prisma.StudentAccessCodeWhereInput
+}
+
+export type StudentAccessCodeUpdateToOneWithWhereWithoutStudentInput = {
+  where?: Prisma.StudentAccessCodeWhereInput
+  data: Prisma.XOR<Prisma.StudentAccessCodeUpdateWithoutStudentInput, Prisma.StudentAccessCodeUncheckedUpdateWithoutStudentInput>
+}
+
+export type StudentAccessCodeUpdateWithoutStudentInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAccessCodeStatusFieldUpdateOperationsInput | $Enums.AccessCodeStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type StudentAccessCodeUncheckedUpdateWithoutStudentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAccessCodeStatusFieldUpdateOperationsInput | $Enums.AccessCodeStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -362,6 +434,7 @@ export type StudentAccessCodeSelect<ExtArgs extends runtime.Types.Extensions.Int
   status?: boolean
   createdAt?: boolean
   usedAt?: boolean
+  student?: boolean | Prisma.StudentAccessCode$studentArgs<ExtArgs>
 }, ExtArgs["result"]["studentAccessCode"]>
 
 export type StudentAccessCodeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -389,10 +462,17 @@ export type StudentAccessCodeSelectScalar = {
 }
 
 export type StudentAccessCodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "status" | "createdAt" | "usedAt", ExtArgs["result"]["studentAccessCode"]>
+export type StudentAccessCodeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  student?: boolean | Prisma.StudentAccessCode$studentArgs<ExtArgs>
+}
+export type StudentAccessCodeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type StudentAccessCodeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $StudentAccessCodePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "StudentAccessCode"
-  objects: {}
+  objects: {
+    student: Prisma.$StudentPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     code: string
@@ -793,6 +873,7 @@ readonly fields: StudentAccessCodeFieldRefs;
  */
 export interface Prisma__StudentAccessCodeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  student<T extends Prisma.StudentAccessCode$studentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StudentAccessCode$studentArgs<ExtArgs>>): Prisma.Prisma__StudentClient<runtime.Types.Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -844,6 +925,10 @@ export type StudentAccessCodeFindUniqueArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
+  /**
    * Filter, which StudentAccessCode to fetch.
    */
   where: Prisma.StudentAccessCodeWhereUniqueInput
@@ -862,6 +947,10 @@ export type StudentAccessCodeFindUniqueOrThrowArgs<ExtArgs extends runtime.Types
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
+  /**
    * Filter, which StudentAccessCode to fetch.
    */
   where: Prisma.StudentAccessCodeWhereUniqueInput
@@ -879,6 +968,10 @@ export type StudentAccessCodeFindFirstArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the StudentAccessCode
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
   /**
    * Filter, which StudentAccessCode to fetch.
    */
@@ -928,6 +1021,10 @@ export type StudentAccessCodeFindFirstOrThrowArgs<ExtArgs extends runtime.Types.
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
+  /**
    * Filter, which StudentAccessCode to fetch.
    */
   where?: Prisma.StudentAccessCodeWhereInput
@@ -975,6 +1072,10 @@ export type StudentAccessCodeFindManyArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the StudentAccessCode
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
   /**
    * Filter, which StudentAccessCodes to fetch.
    */
@@ -1024,6 +1125,10 @@ export type StudentAccessCodeCreateArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
+  /**
    * The data needed to create a StudentAccessCode.
    */
   data: Prisma.XOR<Prisma.StudentAccessCodeCreateInput, Prisma.StudentAccessCodeUncheckedCreateInput>
@@ -1071,6 +1176,10 @@ export type StudentAccessCodeUpdateArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the StudentAccessCode
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
   /**
    * The data needed to update a StudentAccessCode.
    */
@@ -1138,6 +1247,10 @@ export type StudentAccessCodeUpsertArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
+  /**
    * The filter to search for the StudentAccessCode to update in case it exists.
    */
   where: Prisma.StudentAccessCodeWhereUniqueInput
@@ -1164,6 +1277,10 @@ export type StudentAccessCodeDeleteArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
+  /**
    * Filter which StudentAccessCode to delete.
    */
   where: Prisma.StudentAccessCodeWhereUniqueInput
@@ -1184,6 +1301,25 @@ export type StudentAccessCodeDeleteManyArgs<ExtArgs extends runtime.Types.Extens
 }
 
 /**
+ * StudentAccessCode.student
+ */
+export type StudentAccessCode$studentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Student
+   */
+  select?: Prisma.StudentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Student
+   */
+  omit?: Prisma.StudentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentInclude<ExtArgs> | null
+  where?: Prisma.StudentWhereInput
+}
+
+/**
  * StudentAccessCode without action
  */
 export type StudentAccessCodeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1195,4 +1331,8 @@ export type StudentAccessCodeDefaultArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the StudentAccessCode
    */
   omit?: Prisma.StudentAccessCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentAccessCodeInclude<ExtArgs> | null
 }
