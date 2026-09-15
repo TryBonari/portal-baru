@@ -1,7 +1,14 @@
-import Link from "next/link";
 import AdminLayout from "../components/AdminLayout";
+import { checkAdminAuth } from "@/lib/admin-auth";
+import { prisma } from "@/lib/prisma";
 
-export default function AdminDashboardPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminDashboardPage() {
+  await checkAdminAuth();
+
+  const totalSiswa = await prisma.student.count();
+  
   return (
     <AdminLayout activePath="/admin/dashboard">
       <div>
@@ -12,7 +19,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">
           <span className="text-xs font-medium text-stone-500 uppercase">Total Siswa</span>
-          <span className="text-3xl font-bold text-stone-900">0</span>
+          <span className="text-3xl font-bold text-stone-900">{totalSiswa}</span>
           <span className="text-xs text-stone-500 mt-1">Siswa aktif terdaftar</span>
         </div>
         <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">

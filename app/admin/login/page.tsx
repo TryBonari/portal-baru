@@ -1,34 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState } from "react";
 import { loginAdmin } from "./actions";
 
 export default function AdminLoginPage() {
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-
-    try {
-      const res = await loginAdmin(null, formData);
-      if (res.success) {
-        router.push("/admin/dashboard");
-      } else {
-        setError(res.message || "Login gagal.");
-      }
-    } catch (err) {
-      setError("Terjadi kesalahan sistem.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [state, formAction, isPending] = useActionState(loginAdmin, null);
 
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
@@ -38,13 +14,13 @@ export default function AdminLoginPage() {
           <p className="text-sm text-stone-600 mt-1">Gunakan kredensial admin sekolah.</p>
         </div>
 
-        {error && (
+        {state?.message && !state?.success && (
           <div className="mb-4 p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-md">
-            {error}
+            {state.message}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form action={formAction} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-stone-900">Username / Access Code</label>
             <input
@@ -67,13 +43,14 @@ export default function AdminLoginPage() {
           </div>
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isPending}
             className="w-full py-2.5 rounded-md bg-emerald-900 text-white font-semibold text-sm hover:bg-emerald-800 transition disabled:opacity-50 shadow-sm"
           >
-            {isLoading ? "Memproses..." : "Login Admin"}
+            {isPending ? "Memproses..." : "Login Admin"}
           </button>
         </form>
       </div>
     </div>
   );
 }
+

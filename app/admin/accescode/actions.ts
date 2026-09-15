@@ -41,12 +41,15 @@ export async function generateAccessCodes(count: number = 10) {
 export async function createStudentAction(formData: FormData) {
   const name = formData.get("name") as string;
   const accessCodeIdStr = formData.get("accessCodeId") as string;
+  const classIdStr = formData.get("classId") as string;
 
   if (!name || !accessCodeIdStr) {
     throw new Error("Semua field wajib diisi");
   }
 
   const accessCodeId = parseInt(accessCodeIdStr, 10);
+  const classId = classIdStr && classIdStr !== "" ? parseInt(classIdStr, 10) : null;
+
   const accessCodeRecord = await prisma.studentAccessCode.findUnique({
     where: { id: accessCodeId },
   });
@@ -55,10 +58,15 @@ export async function createStudentAction(formData: FormData) {
     throw new Error("Kode akses tidak valid atau sudah digunakan");
   }
 
-  // Create empty hash, to be filled by student later
+  if (classId) {
+    const schoolClass = await prisma.schoolClass.findUnique({ where: { id: classId } });
+    if (!schoolClass || !schoolClass.isActive) {
+      throw new Error("Kelas tidak valid atau sudah nonaktif.");
+    }
+  }
+
   const passwordHash = "$2a$12$PLACEHOLDER_FOR_STUDENT_ACTIVATION";
 
-  // Transaction to create User, Student, and update AccessCode
   await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
@@ -73,7 +81,8 @@ export async function createStudentAction(formData: FormData) {
         name,
         userId: user.id,
         accessCode: accessCodeRecord.code,
-        passwordHash: "", // Placeholder for student activation
+        passwordHash: "",
+        classId,
       },
     });
 
@@ -88,6 +97,23 @@ export async function createStudentAction(formData: FormData) {
 
   revalidatePath("/admin/siswa");
   revalidatePath("/admin/accescode");
+}
+
+
+export async function deleteStudentAction(formData: FormData) {
+  const idStr = formData.get("id") as string;
+  const id = parseInt(idStr, 10);
+  if (!id) throw new Error("ID siswa tidak valid");
+
+  const student = await prisma.student.findUnique({ where: { id }, include: { user: true } });
+  if (!student) throw new Error("Siswa tidak ditemukan");
+
+  await prisma.$transaction(async (tx) => {
+    await tx.student.delete({ where: { id } });
+    await tx.user.delete({ where: { id: student.userId } });
+  });
+
+  revalidatePath("/admin/siswa");
 }
 
 export async function deleteAccessCode(id: number) {

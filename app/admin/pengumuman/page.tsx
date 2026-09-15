@@ -22,7 +22,7 @@ export default async function AdminPengumumanPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="bg-white border border-stone-200 rounded-lg shadow-sm p-6 lg:col-span-1">
           <h2 className="text-base font-semibold text-stone-900 mb-4">Buat Pengumuman</h2>
-          <form action={createAnnouncementAction} encType="multipart/form-data" className="flex flex-col gap-4">
+          <form action={createAnnouncementAction} className="flex flex-col gap-4">
             <div>
               <label className="block text-xs font-medium text-stone-700 uppercase mb-1">Judul</label>
               <input type="text" name="title" required maxLength={150} placeholder="Maksimal 150 karakter" className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm" />
@@ -33,7 +33,7 @@ export default async function AdminPengumumanPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-stone-700 uppercase mb-1">Upload Gambar (Opsional, Max 2MB - JPG/PNG/WebP)</label>
-              <input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif" className="w-full text-sm text-stone-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-stone-100 file:text-stone-700 hover:file:bg-stone-200" />
+              <input type="file" name="image" accept="image/jpeg,image/png,image/webp" className="w-full text-sm text-stone-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-stone-100 file:text-stone-700 hover:file:bg-stone-200" />
             </div>
             <button type="submit" className="w-full py-2 bg-emerald-900 text-white rounded-md text-sm font-medium hover:bg-emerald-800 transition">Post Pengumuman</button>
           </form>

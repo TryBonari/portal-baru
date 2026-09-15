@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ReactNode } from "react";
+import { logoutAdmin } from "../login/actions";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -32,12 +33,14 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-stone-600 hidden sm:inline">Administrator</span>
-            <Link
-              href="/"
-              className="text-sm font-medium px-3 py-1.5 rounded-md border border-stone-300 text-stone-700 hover:bg-stone-100 transition"
-            >
-              Logout
-            </Link>
+            <form action={logoutAdmin}>
+              <button
+                type="submit"
+                className="text-sm font-medium px-3 py-1.5 rounded-md border border-stone-300 text-stone-700 hover:bg-stone-100 transition"
+              >
+                Logout
+              </button>
+            </form>
           </div>
         </div>
       </header>

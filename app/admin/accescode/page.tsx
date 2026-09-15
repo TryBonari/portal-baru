@@ -9,9 +9,16 @@ export default async function AccessCodePage() {
     orderBy: { createdAt: "desc" },
   });
 
+  // Ambil semua access code yang saat ini masih terikat ke student aktif
+  const activeStudents = await prisma.student.findMany({
+    select: { accessCode: true },
+  });
+  const activeAccessCodes = new Set(activeStudents.map((s) => s.accessCode));
+
   const totalCount = accessCodes.length;
   const unusedCount = accessCodes.filter((c) => c.status === "UNUSED").length;
-  const usedCount = accessCodes.filter((c) => c.status === "USED").length;
+  const usedCount = accessCodes.filter((c) => c.status === "USED" && activeAccessCodes.has(c.code)).length;
+  const deletedCount = accessCodes.filter((c) => c.status === "USED" && !activeAccessCodes.has(c.code)).length;
 
   return (
     <AdminLayout activePath="/admin/accescode">
@@ -25,7 +32,7 @@ export default async function AccessCodePage() {
         <GenerateButton />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm">
           <div className="text-xs font-medium text-stone-500 uppercase">Total Dibuat</div>
           <div className="text-2xl font-bold text-stone-900 mt-1">{totalCount}</div>
@@ -37,6 +44,10 @@ export default async function AccessCodePage() {
         <div className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm">
           <div className="text-xs font-medium text-stone-500 uppercase">Sudah Digunakan</div>
           <div className="text-2xl font-bold text-stone-600 mt-1">{usedCount}</div>
+        </div>
+        <div className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm">
+          <div className="text-xs font-medium text-stone-500 uppercase">Siswa Dihapus</div>
+          <div className="text-2xl font-bold text-red-600 mt-1">{deletedCount}</div>
         </div>
       </div>
 
@@ -68,6 +79,10 @@ export default async function AccessCodePage() {
                       {item.status === "UNUSED" ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                           Tersedia
+                        </span>
+                      ) : !activeAccessCodes.has(item.code) ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          Dihapus
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-700">

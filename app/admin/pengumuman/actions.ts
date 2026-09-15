@@ -7,46 +7,83 @@ import { checkAdminAuth } from "@/lib/admin-auth";
 export async function createAnnouncementAction(formData: FormData) {
   await checkAdminAuth();
   
-  const title = formData.get("title") as string;
-  const content = formData.get("content") as string;
-  const imageFile = formData.get("image") as File | null;
+  const rawTitle = formData.get("title");
+  const rawContent = formData.get("content");
+  const rawImage = formData.get("image");
 
-  if (!title || !content) {
-    throw new Error("Judul dan pesan pengumuman wajib diisi");
+  if (typeof rawTitle !== "string" || typeof rawContent !== "string") {
+    throw new Error("Input tidak valid.");
   }
 
-  // ... (rest of code)
-  // ...
+  const title = rawTitle.trim();
+  const content = rawContent.trim();
+
+  if (!title) {
+    throw new Error("Judul pengumuman wajib diisi.");
+  }
+
+  if (title.length > 150) {
+    throw new Error("Judul pengumuman maksimal 150 karakter.");
+  }
+
+  if (!content) {
+    throw new Error("Pesan pengumuman wajib diisi.");
+  }
+
+  if (content.length > 5000) {
+    throw new Error("Pesan pengumuman maksimal 5000 karakter.");
+  }
+
   let imageUrl: string | null = null;
 
-  if (imageFile && imageFile.size > 0 && imageFile.name) {
-    // Validate file type
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-    if (!validTypes.includes(imageFile.type)) {
+  if (rawImage && rawImage instanceof File && rawImage.size > 0 && rawImage.name) {
+    // Validate file type (MIME)
+    const validTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!validTypes.includes(rawImage.type)) {
       throw new Error("Tipe file tidak didukung. Harap gunakan gambar (JPG, PNG, WebP).");
     }
 
     // Validate size (max 2MB)
-    if (imageFile.size > 2 * 1024 * 1024) {
+    if (rawImage.size > 2 * 1024 * 1024) {
       throw new Error("Ukuran gambar maksimal 2MB.");
     }
 
-    // Convert image to base64 Data URL for production/serverless safety without filesystem dependency
-    const bytes = await imageFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const base64Image = buffer.toString("base64");
-    imageUrl = `data:${imageFile.type};base64,${base64Image}`;
+    try {
+      // Use buffer for safer handling
+      const bytes = await rawImage.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      
+      // Basic check for file header (Magic Numbers) to prevent disguised scripts
+      const header = buffer.toString("hex", 0, 4);
+      const isJpeg = header === "ffd8ffe0" || header === "ffd8ffe1" || header === "ffd8ffdb";
+      const isPng = header === "89504e47";
+      const isWebp = header.startsWith("52494646") && buffer.toString("hex", 8, 12) === "57454250";
+
+      if (!isJpeg && !isPng && !isWebp) {
+        throw new Error("Konten file tidak valid.");
+      }
+
+      const base64Image = buffer.toString("base64");
+      imageUrl = `data:${rawImage.type};base64,${base64Image}`;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal memproses gambar.";
+      throw new Error(message);
+    }
   }
 
-  await prisma.announcement.create({
-    data: {
-      title,
-      content,
-      imageUrl,
-      isPublished: true,
-      publishedAt: new Date(),
-    },
-  });
+  try {
+    await prisma.announcement.create({
+      data: {
+        title,
+        content,
+        imageUrl,
+        isPublished: true,
+        publishedAt: new Date(),
+      },
+    });
+  } catch {
+    throw new Error("Gagal menyimpan pengumuman.");
+  }
 
   revalidatePath("/admin/pengumuman");
   revalidatePath("/user/dashboard");
@@ -55,14 +92,25 @@ export async function createAnnouncementAction(formData: FormData) {
 export async function deleteAnnouncementAction(formData: FormData) {
   await checkAdminAuth();
   
-  const idStr = formData.get("id") as string;
-  if (!idStr) return;
+  const rawId = formData.get("id");
+  if (typeof rawId !== "string" || !rawId.trim()) {
+    throw new Error("ID tidak valid.");
+  }
 
-  const id = parseInt(idStr, 10);
-  await prisma.announcement.delete({
-    where: { id },
-  });
+  const id = Number(rawId);
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error("ID tidak valid.");
+  }
+
+  try {
+    await prisma.announcement.delete({
+      where: { id },
+    });
+  } catch {
+    throw new Error("Gagal menghapus pengumuman.");
+  }
 
   revalidatePath("/admin/pengumuman");
   revalidatePath("/user/dashboard");
 }
+

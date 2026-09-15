@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import AdminLayout from "../components/AdminLayout";
-import { createStudentAction } from "../accescode/actions";
+import { createStudentAction, deleteStudentAction } from "../accescode/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -8,8 +8,19 @@ export default async function AdminSiswaPage() {
   const students = await prisma.student.findMany({
     include: {
       user: true,
+      class: {
+        include: {
+          department: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
+  });
+
+  const availableClasses = await prisma.schoolClass.findMany({
+    where: { isActive: true },
+    include: { department: true },
+    orderBy: [{ grade: "asc" }, { number: "asc" }],
   });
 
   const unusedCodes = await prisma.studentAccessCode.findMany({
@@ -68,6 +79,23 @@ export default async function AdminSiswaPage() {
                 </select>
               </div>
 
+              <div>
+                <label className="block text-xs font-medium text-stone-700 uppercase mb-1">
+                  Pilih Kelas (Opsional)
+                </label>
+                <select
+                  name="classId"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-900"
+                >
+                  <option value="">-- Belum Ada Kelas --</option>
+                  {availableClasses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.grade} {c.department?.code} {c.number}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <button
                 type="submit"
                 className="mt-2 w-full py-2 bg-emerald-900 text-white rounded-md text-sm font-medium hover:bg-emerald-800 transition"
@@ -95,7 +123,9 @@ export default async function AdminSiswaPage() {
                   <tr>
                     <th className="px-6 py-3">Nama Siswa</th>
                     <th className="px-6 py-3">Access Code</th>
+                    <th className="px-6 py-3">Kelas</th>
                     <th className="px-6 py-3">Tanggal Daftar</th>
+                    <th className="px-6 py-3 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-200">
@@ -105,7 +135,16 @@ export default async function AdminSiswaPage() {
                       <td className="px-6 py-4 font-mono font-semibold text-emerald-900">
                         {student.user.accessCode}
                       </td>
+                      <td className="px-6 py-4 font-semibold">
+                        {student.class ? `${student.class.grade} ${student.class.department?.code} ${student.class.number}` : <span className="text-stone-400">Belum ada kelas</span>}
+                      </td>
                       <td className="px-6 py-4">{new Date(student.createdAt).toLocaleString("id-ID")}</td>
+                      <td className="px-6 py-4 text-right">
+                        <form action={deleteStudentAction}>
+                          <input type="hidden" name="id" value={student.id} />
+                          <button type="submit" className="text-red-600 font-medium text-xs hover:text-red-800">Hapus</button>
+                        </form>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -117,4 +156,5 @@ export default async function AdminSiswaPage() {
     </AdminLayout>
   );
 }
+
 

@@ -107,7 +107,11 @@ export async function registerStudentAction(formData: FormData) {
   return { success: true, message: "Aktivasi/Registrasi password berhasil! Silakan login." };
 }
 
+import { redirect } from "next/navigation";
+
 export async function logoutStudentAction() {
   const cookieStore = await cookies();
   cookieStore.delete("student_session");
+  cookieStore.delete("admin_session");
+  redirect("/");
 }

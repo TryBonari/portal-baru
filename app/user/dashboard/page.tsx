@@ -16,7 +16,15 @@ export default async function UserDashboardPage() {
   const userId = parseInt(sessionUserId, 10);
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: { student: true },
+    include: {
+      student: {
+        include: {
+          class: {
+            include: { department: true },
+          },
+        },
+      },
+    },
   });
 
   if (!user || user.role !== "STUDENT" || !user.student) {
@@ -100,12 +108,16 @@ export default async function UserDashboardPage() {
               <span className="text-xl font-bold text-stone-900">{student.name}</span>
             </div>
             <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">
-              <span className="text-xs font-medium text-stone-500 uppercase">Kode Akses</span>
-              <span className="text-xl font-bold font-mono text-emerald-900">{user.accessCode}</span>
+              <span className="text-xs font-medium text-stone-500 uppercase">Kelas</span>
+              <span className="text-xl font-bold text-emerald-900">
+                {student.class 
+                  ? `${student.class.grade} ${student.class.department?.code || ""} ${student.class.number}` 
+                  : "-"}
+              </span>
             </div>
             <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">
-              <span className="text-xs font-medium text-stone-500 uppercase">Tahun Ajaran</span>
-              <span className="text-xl font-bold text-stone-900">2025/2026</span>
+              <span className="text-xs font-medium text-stone-500 uppercase">Jurusan</span>
+              <span className="text-xl font-bold text-stone-900">{student.class?.department?.name || "-"}</span>
             </div>
           </div>
 
