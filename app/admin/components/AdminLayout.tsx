@@ -46,7 +46,7 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
       </header>
 
       <div className="flex flex-1 flex-col md:flex-row">
-        <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-stone-200 bg-white p-4 sm:p-6 flex flex-col gap-1">
+        <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-stone-200 bg-white p-4 sm:p-6 flex flex-col gap-1 md:sticky md:top-16 md:h-[calc(100vh-64px)] md:overflow-y-auto">
           <div className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2 px-3">Menu Utama</div>
           {menuItems.map((item) => {
             const isActive = activePath === item.href;

@@ -23,3 +23,22 @@ export const AccessCodeStatus = {
 } as const
 
 export type AccessCodeStatus = (typeof AccessCodeStatus)[keyof typeof AccessCodeStatus]
+
+
+export const Gender = {
+  LAKI_LAKI: 'LAKI_LAKI',
+  PEREMPUAN: 'PEREMPUAN'
+} as const
+
+export type Gender = (typeof Gender)[keyof typeof Gender]
+
+
+export const StudentStatus = {
+  AKTIF: 'AKTIF',
+  NONAKTIF: 'NONAKTIF',
+  LULUS: 'LULUS',
+  KELUAR: 'KELUAR',
+  CUTI: 'CUTI'
+} as const
+
+export type StudentStatus = (typeof StudentStatus)[keyof typeof StudentStatus]

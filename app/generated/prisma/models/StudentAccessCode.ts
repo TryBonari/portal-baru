@@ -376,10 +376,6 @@ export type EnumAccessCodeStatusFieldUpdateOperationsInput = {
   set?: $Enums.AccessCodeStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type StudentAccessCodeCreateWithoutStudentInput = {
   code: string
   status?: $Enums.AccessCodeStatus

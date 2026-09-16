@@ -5,51 +5,57 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
 export async function loginStudentAction(formData: FormData) {
-  const accessCode = (formData.get("accessCode") as string)?.trim().toUpperCase();
-  const password = formData.get("password") as string;
+  try {
+    const accessCode = (formData.get("accessCode") as string)?.trim().toUpperCase();
+    const password = formData.get("password") as string;
 
-  if (!accessCode || !password) {
-    return { success: false, message: "Kode akses dan password wajib diisi." };
+    if (!accessCode || !password) {
+      return { success: false, message: "Kode akses dan password wajib diisi." };
+    }
+
+    const accessCodeRecord = await prisma.studentAccessCode.findUnique({
+      where: { code: accessCode },
+    });
+
+    if (!accessCodeRecord) {
+      return { success: false, message: "Kode akses tidak ditemukan atau belum terdaftar." };
+    }
+
+    if (accessCodeRecord.status === "UNUSED") {
+      return { success: false, message: "Akun belum diaktivasi oleh admin." };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { accessCode },
+      include: { student: true },
+    });
+
+    if (!user || user.role !== "STUDENT" || !user.student) {
+      return { success: false, message: "Akun siswa tidak ditemukan." };
+    }
+
+    if (user.student.status !== "AKTIF") {
+      return { success: false, message: "Akun siswa tidak aktif atau sudah lulus." };
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      return { success: false, message: "Kredensial atau password salah." };
+    }
+
+    const cookieStore = await cookies();
+    cookieStore.set("student_session", String(user.id), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[Login Student Error]:", error);
+    return { success: false, message: "Terjadi kesalahan sistem saat login. Silakan coba lagi." };
   }
-
-  // Check access code status in StudentAccessCode table
-  const accessCodeRecord = await prisma.studentAccessCode.findUnique({
-    where: { code: accessCode },
-  });
-
-  if (!accessCodeRecord) {
-    return { success: false, message: "Kode akses tidak ditemukan." };
-  }
-
-  if (accessCodeRecord.status === "UNUSED") {
-    return { success: false, message: "akun anda belum di daftarkan admin" };
-  }
-
-  // Access code is USED, find student/user
-  const user = await prisma.user.findUnique({
-    where: { accessCode },
-    include: { student: true },
-  });
-
-  if (!user || user.role !== "STUDENT") {
-    return { success: false, message: "akun anda belum di daftarkan admin" };
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-  if (!isPasswordValid) {
-    return { success: false, message: "Password salah." };
-  }
-
-  // Set auth cookie
-  const cookieStore = await cookies();
-  cookieStore.set("student_session", String(user.id), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 1 week
-  });
-
-  return { success: true };
 }
 
 export async function registerStudentAction(formData: FormData) {
