@@ -97,7 +97,7 @@ export default function StudentEditForm({
           </div>
           <div>
             <label className="block text-xs font-medium text-stone-700 uppercase mb-1">Tanggal Lahir</label>
-            <input type="date" name="birthDate" defaultValue={student.birthDate ? new Date(student.birthDate).toISOString().slice(0,10) : ""} className="w-full px-3 py-2 border rounded-md text-sm" />
+            <input type="text" name="birthDate" defaultValue={student.birthDate ? new Date(student.birthDate).toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "/") : ""} placeholder="DD/MM/YYYY" className="w-full px-3 py-2 border rounded-md text-sm" />
           </div>
           <div>
             <label className="block text-xs font-medium text-stone-700 uppercase mb-1">Tahun Masuk</label>
@@ -110,8 +110,7 @@ export default function StudentEditForm({
           <select name="classId" defaultValue={student.classId ?? ""} className="w-full px-3 py-2 border rounded-md text-sm bg-white">
             <option value="">-- Pilih Kelas --</option>
             {availableClasses.map((c) => {
-              const letter = c.number >= 1 && c.number <= 26 ? String.fromCharCode(64 + c.number) : String(c.number);
-              const label = [c.grade, letter, c.department?.code].filter(Boolean).join(" ");
+              const label = [c.grade, c.number, c.department?.code].filter(Boolean).join(" ");
               return <option key={c.id} value={c.id}>{label}</option>;
             })}
           </select>

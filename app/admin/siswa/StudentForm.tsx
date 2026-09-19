@@ -86,7 +86,7 @@ export default function StudentForm({
           </div>
           <div>
             <label className="block text-xs font-medium text-stone-700 uppercase mb-1">Tanggal Lahir</label>
-            <input type="date" name="birthDate" value={formValues.birthDate || ""} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-emerald-900" />
+            <input type="text" name="birthDate" value={formValues.birthDate || ""} onChange={handleChange} placeholder="DD/MM/YYYY" className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-emerald-900" />
           </div>
           <div>
             <label className="block text-xs font-medium text-stone-700 uppercase mb-1">Tahun Masuk</label>
@@ -113,8 +113,7 @@ export default function StudentForm({
             <select name="classId" className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-900">
               <option value="">-- Pilih Kelas --</option>
               {availableClasses.map((c) => {
-                const letter = c.number >= 1 && c.number <= 26 ? String.fromCharCode(64 + c.number) : String(c.number);
-                const label = [c.grade, letter, c.department?.code].filter(Boolean).join(" ");
+                const label = [c.grade, c.number, c.department?.code].filter(Boolean).join(" ");
                 return <option key={c.id} value={c.id}>{label}</option>;
               })}
             </select>

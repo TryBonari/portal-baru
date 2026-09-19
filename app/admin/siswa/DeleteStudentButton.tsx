@@ -21,8 +21,8 @@ export function DeleteStudentButton({ id }: { id: number }) {
   return (
     <form action={formAction}>
       <input type="hidden" name="id" value={id} />
-      <button type="submit" disabled={isPending} className="text-xs font-medium text-red-600 hover:text-red-800 disabled:opacity-50">
-        {isPending ? "..." : "Hapus"}
+      <button type="submit" disabled={isPending} className="w-full py-1.5 bg-red-50 text-xs font-semibold text-red-700 hover:bg-red-100 rounded-md transition text-center disabled:opacity-50">
+        {isPending ? "Memproses..." : "Hapus"}
       </button>
     </form>
   );

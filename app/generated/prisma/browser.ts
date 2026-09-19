@@ -43,6 +43,16 @@ export type Announcement = Prisma.AnnouncementModel
  */
 export type Department = Prisma.DepartmentModel
 /**
+ * Model Teacher
+ * 
+ */
+export type Teacher = Prisma.TeacherModel
+/**
+ * Model TeacherComplaint
+ * 
+ */
+export type TeacherComplaint = Prisma.TeacherComplaintModel
+/**
  * Model SchoolClass
  * 
  */

@@ -13,6 +13,7 @@ const MENU = [
   { label: "Nilai Akademik", href: "/user/nilai" },
   { label: "Pengumuman", href: "/user/pengumuman" },
   { label: "Status SPP", href: "/user/spp" },
+  { label: "Pengaduan", href: "/user/pengaduan" },
 ];
 
 export default async function UserLayout({ children }: { children: React.ReactNode }) {

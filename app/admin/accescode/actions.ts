@@ -113,8 +113,27 @@ export async function createStudentAction(prevState: any, formData: FormData): P
 
     let birthDate: Date | null = null;
     if (birthDateStr && birthDateStr.trim() !== "") {
-      birthDate = new Date(birthDateStr);
-      if (isNaN(birthDate.getTime())) return { success: false, message: "Tanggal lahir tidak valid.", values };
+      const s = birthDateStr.trim();
+      const ddmmyyyy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      const ddmmyyyyDash = !ddmmyyyy ? s.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/) : null;
+      const yyyymmdd = !ddmmyyyy && !ddmmyyyyDash ? s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/) : null;
+      if (ddmmyyyy || ddmmyyyyDash) {
+        const m = (ddmmyyyy || ddmmyyyyDash)!;
+        const d = parseInt(m[1], 10);
+        const mo = parseInt(m[2], 10);
+        const y = parseInt(m[3], 10);
+        if (mo < 1 || mo > 12 || d < 1 || d > 31) return { success: false, message: "Tanggal lahir tidak valid. Gunakan format DD/MM/YYYY.", values };
+        birthDate = new Date(y, mo - 1, d);
+        if (birthDate.getFullYear() !== y || birthDate.getMonth() !== mo - 1 || birthDate.getDate() !== d) return { success: false, message: "Tanggal lahir tidak valid.", values };
+      } else if (yyyymmdd) {
+        const y = parseInt(yyyymmdd[1], 10);
+        const mo = parseInt(yyyymmdd[2], 10);
+        const d = parseInt(yyyymmdd[3], 10);
+        birthDate = new Date(y, mo - 1, d);
+        if (isNaN(birthDate.getTime()) || birthDate.getFullYear() !== y || birthDate.getMonth() !== mo - 1 || birthDate.getDate() !== d) return { success: false, message: "Tanggal lahir tidak valid.", values };
+      } else {
+        return { success: false, message: "Format tanggal lahir harus DD/MM/YYYY.", values };
+      }
       if (birthDate > new Date()) return { success: false, message: "Tanggal lahir tidak boleh di masa depan.", values };
       if (birthDate.getFullYear() < 1900) return { success: false, message: "Tanggal lahir tidak valid.", values };
     }
