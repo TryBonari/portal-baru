@@ -48,7 +48,7 @@ export default function StudentForm({
         <div>
           <label className="block text-xs font-medium text-stone-700 uppercase mb-1">Avatar</label>
           <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" className="w-full text-sm text-stone-600 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-stone-100 file:text-stone-700 hover:file:bg-stone-200" />
-          <p className="text-xs text-stone-400 mt-1">JPG/PNG/WebP, max 2MB.</p>
+          <p className="text-xs text-stone-400 mt-1">JPG/PNG/WebP, max 1MB.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

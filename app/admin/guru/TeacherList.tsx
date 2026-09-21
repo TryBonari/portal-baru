@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { toggleTeacherStatusAction, deleteTeacherAction } from "./teacher-actions";
+import { toggleTeacherStatusAction, deleteTeacherAction, markComplaintsAsReadAction } from "./teacher-actions";
 import { TeacherEditForm } from "./TeacherEditForm";
 import { useToast } from "@/lib/ToastContext";
 
@@ -9,6 +9,7 @@ type Complaint = {
   id: number;
   subject: string;
   message: string;
+  isRead: boolean;
   createdAt: Date;
   student: {
     name: string;
@@ -48,11 +49,55 @@ export function TeacherList({ teachers }: { teachers: Teacher[] }) {
     }
   }, [deleteState, showError, showSuccess]);
 
+  async function handleOpenInbox(t: Teacher) {
+    setViewingInbox(t);
+    const unread = t.complaints?.some(c => !c.isRead);
+    const dateKeys = Object.keys(
+      t.complaints?.reduce((acc, c) => {
+        const date = new Date(c.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+        acc[date] = true;
+        return acc;
+      }, {} as Record<string, boolean>) || {}
+    );
+    if (dateKeys.length > 0) setSelectedExportDate(dateKeys[0]);
+    
+    if (unread) {
+      await markComplaintsAsReadAction(t.id);
+    }
+  }
+
+  const [selectedExportDate, setSelectedExportDate] = useState<string>("");
+
+  const groupedComplaints = viewingInbox?.complaints?.reduce((acc, c) => {
+    const date = new Date(c.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(c);
+    return acc;
+  }, {} as Record<string, Complaint[]>) || {};
+
+  const availableDates = Object.keys(groupedComplaints);
+
+  function exportSelectedDay() {
+    if (!selectedExportDate || !groupedComplaints[selectedExportDate]) return;
+    const items = groupedComplaints[selectedExportDate];
+    const header = "Tanggal,Siswa,NIS,Subjek,Pesan\n";
+    const rows = items.map(c => 
+      `"${selectedExportDate}","${c.student.name}","${c.student.nis || "-"}","${c.subject.replace(/"/g, '""')}","${c.message.replace(/"/g, '""')}"`
+    ).join("\n");
+    const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", `Inbox_${viewingInbox?.name}_${selectedExportDate.replace(/ /g, "_")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   return (
     <>
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[55vh] lg:max-h-[600px]">
         <table className="w-full text-left text-sm text-stone-600">
-          <thead className="bg-stone-50 text-xs font-semibold uppercase text-stone-500 border-b border-stone-200">
+          <thead className="sticky top-0 z-10 bg-stone-50 text-xs font-semibold uppercase text-stone-500 border-b border-stone-200 shadow-sm">
             <tr>
               <th className="px-6 py-3 whitespace-nowrap">Inbox</th>
               <th className="px-6 py-3 whitespace-nowrap">Nama Guru</th>
@@ -68,13 +113,13 @@ export function TeacherList({ teachers }: { teachers: Teacher[] }) {
               <tr key={t.id} className="hover:bg-stone-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button
-                    onClick={() => setViewingInbox(t)}
+                    onClick={() => handleOpenInbox(t)}
                     className="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-md hover:bg-emerald-100 transition relative cursor-pointer"
                   >
                     Inbox
-                    {t.complaints && t.complaints.length > 0 && (
+                    {t.complaints && t.complaints.filter(c => !c.isRead).length > 0 && (
                       <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                        {t.complaints.length}
+                        {t.complaints.filter(c => !c.isRead).length}
                       </span>
                     )}
                   </button>
@@ -155,24 +200,51 @@ export function TeacherList({ teachers }: { teachers: Teacher[] }) {
                 Tutup
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+            <div className="px-6 py-3 border-b border-stone-200 bg-stone-50 flex items-center gap-2">
+              <label className="text-xs font-semibold text-stone-600 whitespace-nowrap">Ekspor per tanggal:</label>
+              <select 
+                value={selectedExportDate} 
+                onChange={(e) => setSelectedExportDate(e.target.value)}
+                className="flex-1 border border-stone-200 rounded-md px-2 py-1 text-xs text-stone-700 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              >
+                <option value="">-- Pilih tanggal --</option>
+                {availableDates.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+              <button 
+                onClick={exportSelectedDay}
+                disabled={!selectedExportDate}
+                className="text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:bg-stone-300 px-3 py-1 rounded transition whitespace-nowrap"
+              >
+                Ekspor CSV
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
               {!viewingInbox.complaints || viewingInbox.complaints.length === 0 ? (
                 <p className="text-sm text-center text-stone-400 py-8">Belum ada pesan masuk untuk guru ini.</p>
               ) : (
-                viewingInbox.complaints.map((c) => (
-                  <div key={c.id} className="border border-stone-200 rounded-lg p-4 bg-stone-50 flex flex-col gap-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-xs text-stone-700">
-                        Dari: {c.student.name} {c.student.nis && <span className="font-mono font-normal text-stone-400">({c.student.nis})</span>}
-                      </span>
-                      <span className="text-[11px] text-stone-400">
-                        {new Date(c.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                      </span>
+                Object.entries(groupedComplaints).map(([date, items]) => (
+                  <div key={date} className="flex flex-col gap-3">
+                    <div className="flex items-center border-b border-stone-100 pb-2">
+                      <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider">{date}</h4>
                     </div>
-                    <p className="text-sm font-medium text-stone-800 mt-1">Subjek: {c.subject}</p>
-                    <p className="text-sm text-stone-600 whitespace-pre-wrap border-t border-stone-200 pt-2 mt-1">
-                      {c.message}
-                    </p>
+                    <div className="flex flex-col gap-4">
+                      {items.map((c) => (
+                        <div key={c.id} className="border border-stone-200 rounded-lg p-4 bg-stone-50 flex flex-col gap-1 shadow-sm">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-xs text-stone-700">
+                              Dari: {c.student.name} {c.student.nis && <span className="font-mono font-normal text-stone-400">({c.student.nis})</span>}
+                            </span>
+                            <span className="text-[11px] text-stone-400">
+                              {new Date(c.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </div>
+                          <p className="text-sm font-medium text-stone-800 mt-1">Subjek: {c.subject}</p>
+                          <p className="text-sm text-stone-600 whitespace-pre-wrap border-t border-stone-200 pt-2 mt-1">
+                            {c.message}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))
               )}

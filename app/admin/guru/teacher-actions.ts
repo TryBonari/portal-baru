@@ -145,6 +145,24 @@ export async function deleteTeacherAction(prevState: any, formData: FormData): P
   }
 }
 
+export async function markComplaintsAsReadAction(teacherId: number): Promise<{ success: boolean }> {
+  try {
+    await checkAdminAuth();
+    if (!Number.isInteger(teacherId) || teacherId <= 0) return { success: false };
+
+    await prisma.teacherComplaint.updateMany({
+      where: { teacherId },
+      data: { isRead: true },
+    });
+
+    revalidatePath("/admin/guru");
+    return { success: true };
+  } catch (e) {
+    console.error("[markComplaintsAsReadAction]", e);
+    return { success: false };
+  }
+}
+
 export async function toggleTeacherStatusAction(prevState: any, formData: FormData): Promise<{ success: boolean; message: string }> {
   try {
     await checkAdminAuth();

@@ -91,7 +91,7 @@ export async function createStudentAction(prevState: any, formData: FormData): P
     if (avatarFile && avatarFile instanceof File && avatarFile.size > 0 && avatarFile.name) {
       const validTypes = ["image/jpeg", "image/png", "image/webp"];
       if (!validTypes.includes(avatarFile.type)) return { success: false, message: "Format file tidak didukung. Harap gunakan JPG, PNG, atau WebP.", values };
-      if (avatarFile.size > 2 * 1024 * 1024) return { success: false, message: "Ukuran file terlalu besar. Maksimal 2MB.", values };
+      if (avatarFile.size > 1 * 1024 * 1024) return { success: false, message: "Ukuran file terlalu besar. Maksimal 1MB.", values };
       
       try {
         const bytes = await avatarFile.arrayBuffer();

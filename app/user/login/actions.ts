@@ -34,8 +34,8 @@ export async function loginStudentAction(formData: FormData) {
       return { success: false, message: "Akun siswa tidak ditemukan." };
     }
 
-    if (user.student.status !== "AKTIF") {
-      return { success: false, message: "Akun siswa tidak aktif atau sudah lulus." };
+    if (user.student.status !== "AKTIF" && user.student.status !== "LULUS") {
+      return { success: false, message: "Akun siswa tidak aktif." };
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);

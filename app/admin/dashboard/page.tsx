@@ -8,6 +8,8 @@ export default async function AdminDashboardPage() {
   await checkAdminAuth();
 
   const totalSiswa = await prisma.student.count();
+  const totalGuru = await prisma.teacher.count();
+  const totalKelas = await prisma.schoolClass.count();
   const announcements = await prisma.announcement.findMany({
     where: { isPublished: true },
     orderBy: { publishedAt: 'desc' },
@@ -29,12 +31,12 @@ export default async function AdminDashboardPage() {
         </div>
         <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">
           <span className="text-xs font-medium text-stone-500 uppercase">Total Guru</span>
-          <span className="text-3xl font-bold text-stone-900">0</span>
+          <span className="text-3xl font-bold text-stone-900">{totalGuru}</span>
           <span className="text-xs text-stone-500 mt-1">Guru pengajar</span>
         </div>
         <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">
           <span className="text-xs font-medium text-stone-500 uppercase">Total Kelas</span>
-          <span className="text-3xl font-bold text-stone-900">0</span>
+          <span className="text-3xl font-bold text-stone-900">{totalKelas}</span>
           <span className="text-xs text-stone-500 mt-1">Kelas aktif</span>
         </div>
         <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">

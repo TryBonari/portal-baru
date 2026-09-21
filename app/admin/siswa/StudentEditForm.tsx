@@ -58,7 +58,7 @@ export default function StudentEditForm({
           <div className="flex-1">
             <label className="block text-xs font-medium text-stone-700 uppercase mb-1">Ganti Avatar</label>
             <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" className="w-full text-sm text-stone-600 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-stone-100" />
-            <p className="text-xs text-stone-400 mt-1">Kosongkan jika tidak ingin mengubah.</p>
+            <p className="text-xs text-stone-400 mt-1">Kosongkan jika tidak ingin mengubah. Max 1MB.</p>
           </div>
         </div>
 

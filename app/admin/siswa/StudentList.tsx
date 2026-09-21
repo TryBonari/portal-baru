@@ -24,9 +24,9 @@ export default function StudentList({ students, availableClasses }: { students: 
 
   return (
     <>
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[55vh] lg:max-h-[600px]">
         <table className="w-full text-left text-sm text-stone-600">
-          <thead className="bg-stone-50 text-xs font-semibold uppercase text-stone-500 border-b border-stone-200">
+          <thead className="sticky top-0 z-10 bg-stone-50 text-xs font-semibold uppercase text-stone-500 border-b border-stone-200 shadow-sm">
             <tr>
               <th className="px-6 py-3 whitespace-nowrap">Avatar</th>
               <th className="px-6 py-3 whitespace-nowrap">Nama</th>
