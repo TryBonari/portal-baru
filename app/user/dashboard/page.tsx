@@ -37,7 +37,7 @@ export default async function UserDashboardPage() {
           <span className="text-xl font-bold text-emerald-900">{activeClass}</span>
         </div>
         <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">
-          <span className="text-xs font-medium text-stone-500 uppercase">Tahun Ajaran</span>
+          <span className="text-xs font-medium text-stone-500 uppercase">Tahun Masuk</span>
           <span className="text-xl font-bold text-stone-900">{student.admissionYear ? String(student.admissionYear) : "-"}</span>
         </div>
       </div>
