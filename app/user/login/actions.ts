@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function loginStudentAction(formData: FormData) {
   try {
@@ -47,10 +49,12 @@ export async function loginStudentAction(formData: FormData) {
     cookieStore.set("student_session", String(user.id), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", // Increased security to prevent cross-site leakage
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
 
+    revalidatePath("/user", "layout");
     return { success: true };
   } catch (error) {
     console.error("[Login Student Error]:", error);
@@ -113,11 +117,10 @@ export async function registerStudentAction(formData: FormData) {
   return { success: true, message: "Aktivasi/Registrasi password berhasil! Silakan login." };
 }
 
-import { redirect } from "next/navigation";
-
 export async function logoutStudentAction() {
   const cookieStore = await cookies();
   cookieStore.delete("student_session");
   cookieStore.delete("admin_session");
+  revalidatePath("/", "layout");
   redirect("/");
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AdminError({
   error,
@@ -12,6 +13,8 @@ export default function AdminError({
   useEffect(() => {
     console.error("[Admin Error Boundary]:", error);
   }, [error]);
+
+  const router = useRouter();
 
   return (
     <div className="min-h-[400px] flex items-center justify-center p-6">
@@ -33,10 +36,10 @@ export default function AdminError({
             Coba Lagi
           </button>
           <button
-            onClick={() => window.location.href = "/admin/dashboard"}
+            onClick={() => router.back()}
             className="w-full py-2 bg-stone-100 text-stone-700 rounded-md text-sm font-medium hover:bg-stone-200 transition"
           >
-            Kembali ke Dashboard
+            Kembali
           </button>
         </div>
       </div>

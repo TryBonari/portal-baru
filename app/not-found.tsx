@@ -1,4 +1,9 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 export default function NotFound() {
+  const router = useRouter();
   return (
     <div className="min-h-screen flex items-center justify-center bg-stone-50 p-6">
       <div className="bg-white border border-stone-200 rounded-lg shadow-sm p-8 max-w-sm w-full text-center">
@@ -7,12 +12,12 @@ export default function NotFound() {
         <p className="text-sm text-stone-600 mb-6">
           Maaf, halaman atau data yang Anda cari tidak tersedia atau sudah dipindahkan.
         </p>
-        <a
-          href="/"
-          className="inline-block w-full py-2 bg-emerald-900 text-white rounded-md text-sm font-medium hover:bg-emerald-800 transition"
+        <button
+          onClick={() => router.back()}
+          className="w-full py-2 bg-emerald-900 text-white rounded-md text-sm font-medium hover:bg-emerald-800 transition"
         >
-          Kembali ke Beranda
-        </a>
+          Kembali
+        </button>
       </div>
     </div>
   );

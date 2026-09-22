@@ -22,12 +22,24 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   if (!sessionUserId) redirect("/login");
 
   const userId = parseInt(sessionUserId, 10);
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: { student: true },
+  
+  // Ensure we fetch the user and their specific associated student record
+  const user = await prisma.user.findFirst({
+    where: { 
+      id: userId,
+      role: "STUDENT"
+    },
+    include: { 
+      student: true 
+    },
   });
 
-  if (!user || user.role !== "STUDENT" || !user.student) redirect("/login");
+  if (!user || !user.student) {
+    // Clear invalid session
+    const cookieStoreSync = await cookies();
+    cookieStoreSync.delete("student_session");
+    redirect("/login");
+  }
 
   const student = user.student;
 

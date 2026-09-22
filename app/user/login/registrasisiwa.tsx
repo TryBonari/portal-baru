@@ -84,6 +84,8 @@ export default function RegistrasiSiswa({ onSwitchToLogin }: RegistrasiSiswaProp
           <input
             id="regAccessCode"
             type="text"
+            name="username"
+            autoComplete="username"
             value={accessCode}
             onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
             placeholder="Contoh: A0001"
@@ -99,6 +101,8 @@ export default function RegistrasiSiswa({ onSwitchToLogin }: RegistrasiSiswaProp
           <div className="relative">
             <input
               id="regPassword"
+              name="new-password"
+              autoComplete="new-password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -135,6 +139,8 @@ export default function RegistrasiSiswa({ onSwitchToLogin }: RegistrasiSiswaProp
           <div className="relative">
             <input
               id="confirmPassword"
+              name="confirm-password"
+              autoComplete="new-password"
               type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

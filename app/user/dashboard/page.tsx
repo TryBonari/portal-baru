@@ -9,11 +9,30 @@ export default async function UserDashboardPage() {
   const sessionUserId = cookieStore.get("student_session")?.value;
   if (!sessionUserId) redirect("/login");
   const userId = parseInt(sessionUserId, 10);
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: { student: { include: { class: { include: { department: true } } } } },
+  
+  // Secure identity mapping: Ensure the student record belongs to the logged-in user
+  const user = await prisma.user.findFirst({
+    where: { 
+      id: userId, 
+      role: "STUDENT" 
+    },
+    include: { 
+      student: { 
+        include: { 
+          class: { 
+            include: { 
+              department: true 
+            } 
+          } 
+        } 
+      } 
+    },
   });
-  if (!user || user.role !== "STUDENT" || !user.student) redirect("/login");
+
+  if (!user || !user.student) {
+    redirect("/login");
+  }
+  
   const student = user.student;
   const announcements = await prisma.announcement.findMany({
     where: { isPublished: true },

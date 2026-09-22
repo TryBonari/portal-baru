@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function UserError({
   error,
@@ -12,6 +13,8 @@ export default function UserError({
   useEffect(() => {
     console.error("[User Error Boundary]:", error);
   }, [error]);
+
+  const router = useRouter();
 
   return (
     <div className="min-h-[400px] flex items-center justify-center p-6">
@@ -25,12 +28,20 @@ export default function UserError({
         <p className="text-sm text-stone-600 mb-6 leading-relaxed">
           Mohon maaf, halaman tidak dapat ditampilkan saat ini. Silakan coba memuat ulang.
         </p>
-        <button
-          onClick={() => reset()}
-          className="w-full py-2 bg-emerald-900 text-white rounded-md text-sm font-medium hover:bg-emerald-800 transition shadow-sm"
-        >
-          Coba Lagi
-        </button>
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => reset()}
+            className="w-full py-2 bg-emerald-900 text-white rounded-md text-sm font-medium hover:bg-emerald-800 transition shadow-sm"
+          >
+            Coba Lagi
+          </button>
+          <button
+            onClick={() => router.back()}
+            className="w-full py-2 bg-stone-100 text-stone-700 rounded-md text-sm font-medium hover:bg-stone-200 transition"
+          >
+            Kembali
+          </button>
+        </div>
       </div>
     </div>
   );

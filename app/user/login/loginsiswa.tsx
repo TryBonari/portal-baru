@@ -68,6 +68,8 @@ export default function LoginSiswa({ onSwitchToRegister }: LoginSiswaProps) {
           <input
             id="accessCode"
             type="text"
+            name="username"
+            autoComplete="username"
             value={accessCode}
             onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
             placeholder="Contoh: A0001"
@@ -83,6 +85,8 @@ export default function LoginSiswa({ onSwitchToRegister }: LoginSiswaProps) {
           <div className="relative">
             <input
               id="password"
+              name="password"
+              autoComplete="current-password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}

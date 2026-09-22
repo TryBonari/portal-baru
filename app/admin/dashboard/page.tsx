@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
         <p className="text-sm text-stone-600 mt-1">Ringkasan data akademik dan administrasi sekolah.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">
           <span className="text-xs font-medium text-stone-500 uppercase">Total Siswa</span>
           <span className="text-3xl font-bold text-stone-900">{totalSiswa}</span>
@@ -38,11 +38,6 @@ export default async function AdminDashboardPage() {
           <span className="text-xs font-medium text-stone-500 uppercase">Total Kelas</span>
           <span className="text-3xl font-bold text-stone-900">{totalKelas}</span>
           <span className="text-xs text-stone-500 mt-1">Kelas aktif</span>
-        </div>
-        <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-1">
-          <span className="text-xs font-medium text-stone-500 uppercase">Tahun Ajaran</span>
-          <span className="text-xl font-bold text-emerald-900">2025/2026</span>
-          <span className="text-xs text-stone-500 mt-1">Semester 1 (Aktif)</span>
         </div>
       </div>
 

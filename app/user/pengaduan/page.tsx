@@ -11,8 +11,13 @@ export default async function StudentPengaduanPage() {
   if (!sessionUserId) redirect("/login");
 
   const userId = parseInt(sessionUserId, 10);
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
+  
+  // Strict identity mapping for teacher complaints
+  const user = await prisma.user.findFirst({
+    where: { 
+      id: userId,
+      role: "STUDENT"
+    },
     include: { student: true },
   });
 

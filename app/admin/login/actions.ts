@@ -22,9 +22,9 @@ export async function loginAdmin(prevState: unknown, formData: FormData) {
         secure: process.env.NODE_ENV === "production",
         path: "/",
         maxAge: 60 * 60 * 24,
-        sameSite: "lax",
+        sameSite: "strict",
       });
-      cookieStore.delete("student_session");
+      // Tidak menghapus student_session secara paksa untuk menghindari konflik session silang
       redirect("/admin/dashboard");
     }
 
@@ -39,6 +39,7 @@ export async function loginAdmin(prevState: unknown, formData: FormData) {
 export async function logoutAdmin() {
   const cookieStore = await cookies();
   cookieStore.delete("admin_session");
+  // Tetap hapus untuk keamanan saat admin logout
   cookieStore.delete("student_session");
   redirect("/");
 }

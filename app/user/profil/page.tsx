@@ -9,11 +9,31 @@ export default async function UserProfilPage() {
   const sessionUserId = cookieStore.get("student_session")?.value;
   if (!sessionUserId) redirect("/login");
   const userId = parseInt(sessionUserId, 10);
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: { student: { include: { class: { include: { department: true } } } } },
+  
+  // Explicit identity check: Fetch user and their bound student record.
+  // Using findFirst with explicit filters to ensure no cross-leakage.
+  const user = await prisma.user.findFirst({
+    where: { 
+      id: userId,
+      role: "STUDENT"
+    },
+    include: { 
+      student: { 
+        include: { 
+          class: { 
+            include: { 
+              department: true 
+            } 
+          } 
+        } 
+      } 
+    },
   });
-  if (!user || user.role !== "STUDENT" || !user.student) redirect("/login");
+
+  if (!user || !user.student) {
+    redirect("/login");
+  }
+
   const student = user.student;
   return (
     <>
