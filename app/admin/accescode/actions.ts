@@ -200,8 +200,13 @@ export async function createStudentAction(prevState: any, formData: FormData): P
     revalidatePath("/admin/siswa");
     revalidatePath("/admin/accescode");
     return { success: true, message: "Siswa berhasil didaftarkan." };
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Create Student Error]:", error);
+    if (error?.code === "P2002") {
+      const target = (error.meta?.target as string[])?.join(",") ?? "";
+      if (target.includes("nisn")) return { success: false, message: "NISN sudah terdaftar oleh siswa lain.", values };
+      if (target.includes("nis")) return { success: false, message: "NIS sudah terdaftar oleh siswa lain.", values };
+    }
     return { success: false, message: "Terjadi kesalahan sistem. Silakan coba lagi.", values };
   }
 }

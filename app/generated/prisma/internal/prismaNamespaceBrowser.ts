@@ -52,12 +52,15 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Attendance: 'Attendance',
   Student: 'Student',
   StudentAccessCode: 'StudentAccessCode',
   Announcement: 'Announcement',
   Department: 'Department',
   Teacher: 'Teacher',
   TeacherComplaint: 'TeacherComplaint',
+  Subject: 'Subject',
+  Schedule: 'Schedule',
   SchoolClass: 'SchoolClass'
 } as const
 
@@ -87,6 +90,19 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const AttendanceScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  date: 'date',
+  status: 'status',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
 
 
 export const StudentScalarFieldEnum = {
@@ -174,6 +190,33 @@ export const TeacherComplaintScalarFieldEnum = {
 } as const
 
 export type TeacherComplaintScalarFieldEnum = (typeof TeacherComplaintScalarFieldEnum)[keyof typeof TeacherComplaintScalarFieldEnum]
+
+
+export const SubjectScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubjectScalarFieldEnum = (typeof SubjectScalarFieldEnum)[keyof typeof SubjectScalarFieldEnum]
+
+
+export const ScheduleScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  subjectId: 'subjectId',
+  teacherId: 'teacherId',
+  day: 'day',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ScheduleScalarFieldEnum = (typeof ScheduleScalarFieldEnum)[keyof typeof ScheduleScalarFieldEnum]
 
 
 export const SchoolClassScalarFieldEnum = {

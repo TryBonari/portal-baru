@@ -133,8 +133,13 @@ export async function updateStudentAction(prevState: any, formData: FormData): P
 
     revalidatePath("/admin/siswa");
     return { success: true, message: "Data siswa berhasil diperbarui." };
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Update Student Error]:", error);
+    if (error?.code === "P2002") {
+      const target = (error.meta?.target as string[])?.join(",") ?? "";
+      if (target.includes("nisn")) return { success: false, message: "NISN sudah terdaftar oleh siswa lain." };
+      if (target.includes("nis")) return { success: false, message: "NIS sudah terdaftar oleh siswa lain." };
+    }
     return { success: false, message: "Terjadi kesalahan sistem. Silakan coba lagi." };
   }
 }

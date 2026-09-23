@@ -41,6 +41,29 @@ model User {
   student Student?
 }
 
+enum AttendanceStatus {
+  HADIR
+  SAKIT
+  IZIN
+  ALPA
+}
+
+model Attendance {
+  id        Int              @id @default(autoincrement())
+  studentId Int
+  date      DateTime         // Tanggal absensi (biasanya dinormalkan ke awal hari)
+  status    AttendanceStatus
+  note      String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, date])
+  @@index([studentId])
+  @@index([date])
+}
+
 model Student {
   id           Int           @id @default(autoincrement())
   userId       Int           @unique
@@ -63,6 +86,7 @@ model Student {
   studentAccessCode StudentAccessCode @relation(fields: [accessCode], references: [code], onDelete: Restrict)
   class             SchoolClass?      @relation(fields: [classId], references: [id], onDelete: SetNull)
   teacherComplaints TeacherComplaint[]
+  attendances       Attendance[]
 
   @@index([classId])
   @@index([status])
@@ -112,6 +136,7 @@ model Teacher {
 
   classes          SchoolClass[]
   complaints       TeacherComplaint[]
+  schedules        Schedule[]
 }
 
 model TeacherComplaint {
@@ -130,6 +155,36 @@ model TeacherComplaint {
   @@index([studentId])
 }
 
+model Subject {
+  id        Int           @id @default(autoincrement())
+  code      String?       @unique
+  name      String
+  isActive  Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  schedules Schedule[]
+}
+
+model Schedule {
+  id              Int      @id @default(autoincrement())
+  classId         Int
+  subjectId       Int
+  teacherId       Int
+  day             String
+  startTime       String
+  endTime         String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  class   SchoolClass @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacher Teacher     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([classId])
+  @@index([subjectId])
+  @@index([teacherId])
+}
+
 model SchoolClass {
   id           Int         @id @default(autoincrement())
   grade        String
@@ -143,6 +198,7 @@ model SchoolClass {
   department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   homeroomTeacher Teacher? @relation(fields: [homeroomTeacherId], references: [id], onDelete: SetNull)
   students     Student[]
+  schedules    Schedule[]
 
   @@unique([grade, number, departmentId])
   @@index([departmentId])

@@ -42,3 +42,13 @@ export const StudentStatus = {
 } as const
 
 export type StudentStatus = (typeof StudentStatus)[keyof typeof StudentStatus]
+
+
+export const AttendanceStatus = {
+  HADIR: 'HADIR',
+  SAKIT: 'SAKIT',
+  IZIN: 'IZIN',
+  ALPA: 'ALPA'
+} as const
+
+export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus]
