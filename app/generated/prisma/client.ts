@@ -67,6 +67,21 @@ export type StudentAccessCode = Prisma.StudentAccessCodeModel
  */
 export type Announcement = Prisma.AnnouncementModel
 /**
+ * Model Grade
+ * 
+ */
+export type Grade = Prisma.GradeModel
+/**
+ * Model AcademicYear
+ * 
+ */
+export type AcademicYear = Prisma.AcademicYearModel
+/**
+ * Model Semester
+ * 
+ */
+export type Semester = Prisma.SemesterModel
+/**
  * Model Department
  * 
  */

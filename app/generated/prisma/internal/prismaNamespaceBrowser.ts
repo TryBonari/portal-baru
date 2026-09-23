@@ -56,6 +56,9 @@ export const ModelName = {
   Student: 'Student',
   StudentAccessCode: 'StudentAccessCode',
   Announcement: 'Announcement',
+  Grade: 'Grade',
+  AcademicYear: 'AcademicYear',
+  Semester: 'Semester',
   Department: 'Department',
   Teacher: 'Teacher',
   TeacherComplaint: 'TeacherComplaint',
@@ -152,6 +155,50 @@ export const AnnouncementScalarFieldEnum = {
 export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
 
 
+export const GradeScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  subjectId: 'subjectId',
+  academicYearId: 'academicYearId',
+  semesterId: 'semesterId',
+  assignmentScore: 'assignmentScore',
+  utsScore: 'utsScore',
+  uasScore: 'uasScore',
+  practiceScore: 'practiceScore',
+  finalScore: 'finalScore',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GradeScalarFieldEnum = (typeof GradeScalarFieldEnum)[keyof typeof GradeScalarFieldEnum]
+
+
+export const AcademicYearScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AcademicYearScalarFieldEnum = (typeof AcademicYearScalarFieldEnum)[keyof typeof AcademicYearScalarFieldEnum]
+
+
+export const SemesterScalarFieldEnum = {
+  id: 'id',
+  academicYearId: 'academicYearId',
+  name: 'name',
+  number: 'number',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SemesterScalarFieldEnum = (typeof SemesterScalarFieldEnum)[keyof typeof SemesterScalarFieldEnum]
+
+
 export const DepartmentScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -226,6 +273,7 @@ export const SchoolClassScalarFieldEnum = {
   departmentId: 'departmentId',
   isActive: 'isActive',
   homeroomTeacherId: 'homeroomTeacherId',
+  academicYearId: 'academicYearId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

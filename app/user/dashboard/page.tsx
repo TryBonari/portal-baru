@@ -37,7 +37,7 @@ export default async function UserDashboardPage() {
   const announcements = await prisma.announcement.findMany({
     where: { isPublished: true },
     orderBy: { createdAt: "desc" },
-    take: 5,
+    take: 3,
   });
   const activeClass = student.class ? [student.class.grade, student.class.department?.code || "", String(student.class.number)].filter(Boolean).join(" ") : "-";
   return (
