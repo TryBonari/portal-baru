@@ -1,26 +1,32 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { exportAttendanceExcel, importAttendanceExcel } from "./excel-actions";
+import { exportGradeExcel, importGradeExcel } from "./grade-actions";
 import { useToast } from "@/lib/ToastContext";
 
-export default function ExcelControls({
-  classId,
-  dateStr,
-}: {
+interface GradeExcelControlsProps {
   classId: number;
-  dateStr: string;
-}) {
+  subjectId?: number | null;
+  semesterId?: number | null;
+  academicYearId?: number | null;
+}
+
+export default function GradeExcelControls({
+  classId,
+  subjectId = null,
+  semesterId = null,
+  academicYearId = null,
+}: GradeExcelControlsProps) {
   const { showSuccess, showError } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [externalData, setExternalData] = useState<string[]>([]);
+  const [unregisteredStudents, setUnregisteredStudents] = useState<string[]>([]);
 
   async function handleExport() {
     setIsExporting(true);
     try {
-      const { base64, filename } = await exportAttendanceExcel(classId, dateStr);
+      const { base64, filename } = await exportGradeExcel(classId);
       const binaryString = atob(base64);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
@@ -37,7 +43,7 @@ export default function ExcelControls({
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      showSuccess("File absensi berhasil diunduh.");
+      showSuccess("File nilai berhasil diunduh.");
     } catch (err: unknown) {
       const error = err as Error;
       showError(error.message || "Gagal mengekspor data.");
@@ -50,6 +56,12 @@ export default function ExcelControls({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!subjectId || !semesterId || !academicYearId) {
+      showError("Pilih Mata Pelajaran, Semester, dan Tahun Ajaran terlebih dahulu sebelum mengimpor nilai.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     setIsImporting(true);
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -60,18 +72,25 @@ export default function ExcelControls({
         uint8Array.forEach((byte) => binary += String.fromCharCode(byte));
         const base64Data = btoa(binary);
 
-        const result = await importAttendanceExcel(classId, dateStr, base64Data);
-        
+        const result = await importGradeExcel(
+          classId,
+          subjectId,
+          semesterId,
+          academicYearId,
+          base64Data
+        );
+
         if (result.success) {
           showSuccess(result.message);
-          if (result.notInClass.length > 0) {
-            setExternalData(result.notInClass);
+          if (result.notRegistered.length > 0) {
+            setUnregisteredStudents(result.notRegistered);
           } else {
-            setExternalData([]);
+            setUnregisteredStudents([]);
           }
         }
-      } catch {
-        showError("Gagal mengimpor file. Pastikan format sesuai.");
+      } catch (err: unknown) {
+        const error = err as Error;
+        showError(error.message || "Gagal mengimpor file. Pastikan format sesuai.");
       } finally {
         setIsImporting(false);
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -109,22 +128,21 @@ export default function ExcelControls({
         </button>
       </div>
 
-      {externalData.length > 0 && (
+      {unregisteredStudents.length > 0 && (
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-md">
           <h4 className="text-xs font-bold text-amber-800 uppercase mb-2">
-            Siswa Tidak Dikenali / Belum di Kelas Ini:
+            Siswa Belum Terdaftar di Kelas Ini:
           </h4>
           <ul className="text-xs text-amber-700 list-disc list-inside space-y-1">
-            {externalData.map((name, i) => (
+            {unregisteredStudents.map((name, i) => (
               <li key={i}>{name}</li>
             ))}
           </ul>
           <p className="text-xs text-amber-600 mt-2">
-            Silakan daftarkan mereka melalui menu Siswa jika memang baru.
+            Pastikan nama siswa sesuai dengan daftar siswa yang ada di kelas ini.
           </p>
         </div>
       )}
     </div>
   );
 }
-

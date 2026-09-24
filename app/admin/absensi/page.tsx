@@ -94,7 +94,7 @@ export default async function AdminAbsensiPage({ searchParams }: { searchParams:
               <span className="font-medium text-stone-800">{formattedDate}</span>
             </p>
           </div>
-          <Link href="/admin/absensi" className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-md border border-stone-300 text-stone-700 hover:bg-stone-100 w-fit">← Ganti kelas</Link>
+          <ExcelControls classId={selectedClassId} dateStr={selectedDate} />
         </div>
 
         <form className="flex flex-wrap items-center gap-3 bg-white border border-stone-200 rounded-lg p-4 shadow-sm">
@@ -121,8 +121,6 @@ export default async function AdminAbsensiPage({ searchParams }: { searchParams:
         </form>
 
         <AttendanceTable classId={selectedClassId} students={rows} selectedDate={selectedDate} />
-
-        <ExcelControls classId={selectedClassId} dateStr={selectedDate} />
       </div>
     </AdminLayout>
   );
