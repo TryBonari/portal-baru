@@ -3,6 +3,9 @@ import { checkAdminAuth } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import GradeExcelControls from "./GradeExcelControls";
+import AcademicYearForm from "./AcademicYearForm";
+import AcademicYearCard from "./AcademicYearCard";
+import GradeTable from "./GradeTable";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +21,55 @@ export default async function AdminNilaiPage({
 }) {
   await checkAdminAuth();
   const params = await searchParams;
+  const selectedAcademicYearId = params.academicYearId ? parseInt(params.academicYearId, 10) : null;
   const selectedClassId = params.classId ? parseInt(params.classId, 10) : null;
   const selectedSubjectId = params.subjectId ? parseInt(params.subjectId, 10) : null;
   const selectedSemesterId = params.semesterId ? parseInt(params.semesterId, 10) : null;
-  const selectedAcademicYearId = params.academicYearId ? parseInt(params.academicYearId, 10) : null;
 
+  // Step 1: Pilih Tahun Ajaran
+  if (!selectedAcademicYearId) {
+    const academicYears = await prisma.academicYear.findMany({
+      orderBy: { startDate: "desc" },
+    });
+
+    const fmt = (d: Date) => {
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yyyy = d.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    };
+
+    return (
+      <AdminLayout activePath="/admin/nilai">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900">Pengelolaan Nilai</h1>
+          <p className="text-sm text-stone-600 mt-1">Pilih Tahun Ajaran terlebih dahulu.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {academicYears.map((ay) => (
+            <AcademicYearCard
+              key={ay.id}
+              ay={{
+                id: ay.id,
+                name: ay.name,
+                startDate: ay.startDate.toISOString(),
+                endDate: ay.endDate.toISOString(),
+                startDateFormatted: fmt(ay.startDate),
+                endDateFormatted: fmt(ay.endDate),
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="mt-8 max-w-sm">
+          <AcademicYearForm />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // Fetch classes for selection in Step 2
   const classes = await prisma.schoolClass.findMany({
     include: { department: true },
     where: { isActive: true },
@@ -33,6 +80,15 @@ export default async function AdminNilaiPage({
     return (
       <AdminLayout activePath="/admin/nilai">
         <div className="mb-6">
+          <div className="mb-3">
+            <Link
+              href="/admin/nilai"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:text-emerald-800 transition shadow-sm"
+            >
+              <span>←</span>
+              <span>Ganti Tahun Ajaran</span>
+            </Link>
+          </div>
           <h1 className="text-2xl font-bold tracking-tight text-stone-900">Pengelolaan Nilai</h1>
           <p className="text-sm text-stone-600 mt-1">Pilih kelas untuk mengelola nilai siswa.</p>
         </div>
@@ -40,7 +96,7 @@ export default async function AdminNilaiPage({
           {classes.map((c) => (
             <Link
               key={c.id}
-              href={`/admin/nilai?classId=${c.id}`}
+              href={`/admin/nilai?academicYearId=${selectedAcademicYearId}&classId=${c.id}`}
               className="bg-white border border-stone-200 rounded-lg p-5 hover:border-emerald-600 hover:shadow-md transition flex items-center justify-between group"
             >
               <div>
@@ -74,16 +130,14 @@ export default async function AdminNilaiPage({
     );
   }
 
-  if (selectedClassId && (!selectedSubjectId || !selectedSemesterId || !selectedAcademicYearId)) {
-    const activeAcademicYear = await prisma.academicYear.findFirst({
-      where: { isActive: true },
-      orderBy: { startDate: "desc" },
-    });
-
-    const [subjects, academicYears, semesters] = await Promise.all([
+  if (selectedClassId && (!selectedSubjectId || !selectedSemesterId)) {
+    const [subjects, semesters, selectedAY] = await Promise.all([
       prisma.subject.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
-      prisma.academicYear.findMany({ orderBy: { startDate: "desc" } }),
-      prisma.semester.findMany({ orderBy: [{ academicYearId: "asc" }, { number: "asc" }] }),
+      prisma.semester.findMany({ 
+        where: { academicYearId: selectedAcademicYearId },
+        orderBy: { number: "asc" } 
+      }),
+      prisma.academicYear.findUnique({ where: { id: selectedAcademicYearId } })
     ]);
 
     const classNameStr = `${selectedClass.grade ?? ""} ${selectedClass.department?.code ?? ""} ${selectedClass.number ?? ""}`.trim();
@@ -91,28 +145,23 @@ export default async function AdminNilaiPage({
     return (
       <AdminLayout activePath="/admin/nilai">
         <div className="mb-6">
+          <div className="mb-3">
+            <Link
+              href={`/admin/nilai?academicYearId=${selectedAcademicYearId}`}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:text-emerald-800 transition shadow-sm"
+            >
+              <span>←</span>
+              <span>Ganti Kelas</span>
+            </Link>
+          </div>
           <h1 className="text-2xl font-bold tracking-tight text-stone-900">Input Nilai - {classNameStr}</h1>
-          <p className="text-sm text-stone-600 mt-1">Lengkapi pilihan di bawah untuk mulai mengelola nilai.</p>
+          <p className="text-sm text-stone-600 mt-1">Tahun Ajaran: {selectedAY?.name}</p>
         </div>
 
         <form className="max-w-md bg-white border border-stone-200 rounded-lg p-6 shadow-sm flex flex-col gap-4">
           <input type="hidden" name="classId" value={String(selectedClassId)} />
+          <input type="hidden" name="academicYearId" value={String(selectedAcademicYearId)} />
           
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-stone-700">Tahun Ajaran</label>
-            <select
-              name="academicYearId"
-              required
-              defaultValue={selectedAcademicYearId ?? activeAcademicYear?.id ?? ""}
-              className="px-3 py-2 border border-stone-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="">Pilih Tahun Ajaran</option>
-              {academicYears.map((ay) => (
-                <option key={ay.id} value={ay.id}>{ay.name}</option>
-              ))}
-            </select>
-          </div>
-
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-stone-700">Semester</label>
             <select
@@ -123,7 +172,7 @@ export default async function AdminNilaiPage({
             >
               <option value="">Pilih Semester</option>
               {semesters.map((s) => (
-                <option key={s.id} value={s.id}>{s.name} ({academicYears.find(ay => ay.id === s.academicYearId)?.name})</option>
+                <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
           </div>
@@ -154,15 +203,17 @@ export default async function AdminNilaiPage({
     );
   }
 
-  const [subjects, academicYears, semesters] = await Promise.all([
+  const [subjects, semesters, selectedAY] = await Promise.all([
     prisma.subject.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
-    prisma.academicYear.findMany({ orderBy: { startDate: "desc" } }),
-    prisma.semester.findMany({ orderBy: [{ academicYearId: "asc" }, { number: "asc" }] }),
+    prisma.semester.findMany({ 
+      where: { academicYearId: selectedAcademicYearId },
+      orderBy: { number: "asc" } 
+    }),
+    prisma.academicYear.findUnique({ where: { id: selectedAcademicYearId } })
   ]);
 
   const selectedSubject = subjects.find(s => s.id === selectedSubjectId);
   const selectedSemester = semesters.find(s => s.id === selectedSemesterId);
-  const selectedAY = academicYears.find(ay => ay.id === selectedAcademicYearId);
 
   const studentIds = selectedClass.students.map((s) => s.id);
   const grades = await prisma.grade.findMany({
@@ -177,25 +228,50 @@ export default async function AdminNilaiPage({
   const gradeMap = new Map(grades.map((g) => [g.studentId, g]));
   const classNameStr = `${selectedClass.grade ?? ""} ${selectedClass.department?.code ?? ""} ${selectedClass.number ?? ""}`.trim();
 
+  const initialRows = selectedClass.students.map((s) => {
+    const g = gradeMap.get(s.id);
+    return {
+      studentId: s.id,
+      name: s.name,
+      assignmentScore: g?.assignmentScore != null ? String(g.assignmentScore) : "",
+      utsScore: g?.utsScore != null ? String(g.utsScore) : "",
+      uasScore: g?.uasScore != null ? String(g.uasScore) : "",
+    };
+  });
+
   return (
     <AdminLayout activePath="/admin/nilai">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Link href={`/admin/nilai?classId=${selectedClassId}`} className="text-xs text-emerald-700 hover:underline">← Ganti Mapel/Semester</Link>
+            <div className="mb-2">
+              <Link
+                href={`/admin/nilai?academicYearId=${selectedAcademicYearId}&classId=${selectedClassId}`}
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:text-emerald-800 transition shadow-sm"
+              >
+                <span>←</span>
+                <span>Ganti Mapel/Semester</span>
+              </Link>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-stone-900">Nilai: {selectedSubject?.name}</h1>
             <p className="text-sm text-stone-600 mt-1">
               Kelas {classNameStr} • {selectedSemester?.name} • {selectedAY?.name}
             </p>
           </div>
-          <GradeExcelControls
-            classId={selectedClassId}
-            subjectId={selectedSubjectId}
-            semesterId={selectedSemesterId}
-            academicYearId={selectedAcademicYearId}
-          />
+          <div className="flex flex-col gap-3">
+            <Link
+              href={`/admin/nilai/edit?academicYearId=${selectedAcademicYearId}&classId=${selectedClassId}&subjectId=${selectedSubjectId}&semesterId=${selectedSemesterId}`}
+              className="text-center px-4 py-2 bg-emerald-900 text-white text-sm font-bold rounded hover:bg-emerald-800 transition shadow-sm"
+            >
+              EDIT NILAI (MANUAL)
+            </Link>
+            <GradeExcelControls
+              classId={selectedClassId}
+              subjectId={selectedSubjectId}
+              semesterId={selectedSemesterId}
+              academicYearId={selectedAcademicYearId}
+            />
+          </div>
         </div>
 
         <div className="bg-white border border-stone-200 rounded-lg shadow-sm overflow-hidden">
@@ -206,27 +282,27 @@ export default async function AdminNilaiPage({
                 <th className="px-6 py-3 text-center text-stone-700">Tugas</th>
                 <th className="px-6 py-3 text-center text-stone-700">UTS</th>
                 <th className="px-6 py-3 text-center text-stone-700">UAS</th>
-                <th className="px-6 py-3 text-center text-stone-700">Praktik</th>
                 <th className="px-6 py-3 text-center text-stone-700">Nilai Akhir</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200">
               {selectedClass.students.map((s) => {
                 const g = gradeMap.get(s.id);
+                const scores = [g?.assignmentScore, g?.utsScore, g?.uasScore].filter(v => v != null) as number[];
+                const final = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2).replace(/\.00$/, "") : "-";
                 return (
                   <tr key={s.id}>
                     <td className="px-6 py-4 font-medium text-stone-900">{s.name}</td>
                     <td className="px-6 py-4 text-center">{g?.assignmentScore ?? "-"}</td>
                     <td className="px-6 py-4 text-center">{g?.utsScore ?? "-"}</td>
                     <td className="px-6 py-4 text-center">{g?.uasScore ?? "-"}</td>
-                    <td className="px-6 py-4 text-center">{g?.practiceScore ?? "-"}</td>
-                    <td className="px-6 py-4 text-center">{g?.finalScore ?? "-"}</td>
+                    <td className="px-6 py-4 text-center font-mono font-bold text-emerald-900">{final}</td>
                   </tr>
                 );
               })}
               {selectedClass.students.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-stone-400">
+                  <td colSpan={5} className="px-6 py-8 text-center text-stone-400">
                     Belum ada siswa di kelas ini.
                   </td>
                 </tr>
@@ -238,3 +314,5 @@ export default async function AdminNilaiPage({
     </AdminLayout>
   );
 }
+
+

@@ -24,9 +24,13 @@ export default function GradeExcelControls({
   const [unregisteredStudents, setUnregisteredStudents] = useState<string[]>([]);
 
   async function handleExport() {
+    if (!subjectId) {
+      showError("Mata pelajaran belum dipilih.");
+      return;
+    }
     setIsExporting(true);
     try {
-      const { base64, filename } = await exportGradeExcel(classId);
+      const { base64, filename } = await exportGradeExcel(classId, subjectId);
       const binaryString = atob(base64);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
@@ -82,11 +86,16 @@ export default function GradeExcelControls({
 
         if (result.success) {
           showSuccess(result.message);
-          if (result.notRegistered.length > 0) {
-            setUnregisteredStudents(result.notRegistered);
-          } else {
-            setUnregisteredStudents([]);
+          const notReg = result.notRegistered || [];
+          setUnregisteredStudents(notReg);
+          if (notReg.length > 0) {
+            setTimeout(() => {
+              showError(`Ditemukan ${notReg.length} data tidak terdaftar di kelas ini.`);
+            }, 100);
           }
+        } else {
+          showError(result.message);
+          setUnregisteredStudents(result.notRegistered || []);
         }
       } catch (err: unknown) {
         const error = err as Error;

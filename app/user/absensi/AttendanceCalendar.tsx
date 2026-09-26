@@ -127,14 +127,14 @@ export default function AttendanceCalendar({
               onClick={handlePrevMonth}
               className="p-2 border border-stone-300 rounded-md hover:bg-stone-50 text-stone-700 text-sm font-semibold transition"
             >
-              &larr; Bulan Lalu
+              Bulan Lalu
             </button>
             <button
               type="button"
               onClick={handleNextMonth}
               className="p-2 border border-stone-300 rounded-md hover:bg-stone-50 text-stone-700 text-sm font-semibold transition"
             >
-              Bulan Depan &rarr;
+              Bulan Depan
             </button>
           </div>
         </div>

@@ -19,9 +19,7 @@ type Student = {
   class?: { grade: string; number: number; department: { code: string; name: string } | null } | null;
 };
 
-export default function StudentList({ students, availableClasses }: { students: Student[]; availableClasses: Cls[] }) {
-  const [editing, setEditing] = useState<Student | null>(null);
-
+export default function StudentList({ students }: { students: Student[] }) {
   return (
     <>
       <div className="overflow-auto max-h-[55vh] lg:max-h-[600px]">
@@ -36,7 +34,6 @@ export default function StudentList({ students, availableClasses }: { students: 
               <th className="px-6 py-3 whitespace-nowrap">Tingkat</th>
               <th className="px-6 py-3 whitespace-nowrap">Tahun Masuk</th>
               <th className="px-6 py-3 whitespace-nowrap">Status</th>
-              <th className="px-6 py-3 whitespace-nowrap text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200">
@@ -52,25 +49,11 @@ export default function StudentList({ students, availableClasses }: { students: 
                 <td className="px-6 py-4 whitespace-nowrap">{s.class?.grade || "-"}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{s.admissionYear || "-"}</td>
                 <td className="px-6 py-4 whitespace-nowrap"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${s.status === "AKTIF" ? "bg-emerald-100 text-emerald-800" : s.status === "LULUS" ? "bg-blue-100 text-blue-800" : "bg-red-100 text-red-800"}`}>{s.status}</span></td>
-                    <td className="px-8 py-2 whitespace-nowrap text-right">
-                      <div className="flex flex-col gap-2 items-stretch min-w-[60px]">
-                        <button onClick={() => setEditing(s)} className="w-full py-1.5 bg-stone-100 text-xs font-semibold text-stone-700 hover:bg-stone-200 rounded-md transition text-center">Edit</button>
-                        <DeleteStudentButton id={s.id} />
-                      </div>
-                    </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <StudentEditForm student={editing} availableClasses={availableClasses} onClose={() => setEditing(null)} />
-          </div>
-        </div>
-      )}
     </>
   );
 }

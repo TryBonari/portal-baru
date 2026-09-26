@@ -11,6 +11,7 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
   const menuItems = [
     { label: "Dashboard", href: "/admin/dashboard" },
     { label: "Data Siswa", href: "/admin/siswa" },
+    { label: "Kelola Siswa", href: "/admin/kelola-siswa" },
     { label: "Access Code", href: "/admin/accescode" },
     { label: "Guru", href: "/admin/guru" },
     { label: "Kelas & Jurusan", href: "/admin/kelas" },

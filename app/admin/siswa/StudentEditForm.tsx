@@ -105,16 +105,7 @@ export default function StudentEditForm({
           </div>
         </div>
 
-        <div className="border-t border-stone-200 pt-4">
-          <label className="block text-xs font-medium text-stone-700 uppercase mb-2">Kelas</label>
-          <select name="classId" defaultValue={student.classId ?? ""} className="w-full px-3 py-2 border rounded-md text-sm bg-white">
-            <option value="">-- Pilih Kelas --</option>
-            {availableClasses.map((c) => {
-              const label = [c.grade, c.number, c.department?.code].filter(Boolean).join(" ");
-              return <option key={c.id} value={c.id}>{label}</option>;
-            })}
-          </select>
-        </div>
+        <input type="hidden" name="classId" value={student.classId ?? ""} />
 
         <button type="submit" disabled={isPending} className="w-full py-2 bg-emerald-900 text-white rounded-md text-sm font-medium hover:bg-emerald-800 disabled:opacity-50">
           {isPending ? "Memproses..." : "Simpan Perubahan"}

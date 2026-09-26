@@ -53,7 +53,7 @@ export default async function AdminSiswaPage() {
           {students.length === 0 ? (
             <div className="p-8 text-center text-sm text-stone-500">Belum ada data siswa. Tambahkan melalui form di samping.</div>
           ) : (
-            <StudentList students={students} availableClasses={availableClasses} />
+            <StudentList students={students} />
           )}
         </div>
       </div>
