@@ -410,6 +410,7 @@ export const ModelName = {
   TeacherComplaint: 'TeacherComplaint',
   Subject: 'Subject',
   Schedule: 'Schedule',
+  SPPSetting: 'SPPSetting',
   SchoolClass: 'SchoolClass'
 } as const
 
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "attendance" | "student" | "studentAccessCode" | "announcement" | "grade" | "academicYear" | "semester" | "department" | "teacher" | "teacherComplaint" | "subject" | "schedule" | "schoolClass"
+    modelProps: "user" | "attendance" | "student" | "studentAccessCode" | "announcement" | "grade" | "academicYear" | "semester" | "department" | "teacher" | "teacherComplaint" | "subject" | "schedule" | "sPPSetting" | "schoolClass"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1392,6 +1393,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SPPSetting: {
+      payload: Prisma.$SPPSettingPayload<ExtArgs>
+      fields: Prisma.SPPSettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SPPSettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SPPSettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload>
+        }
+        findFirst: {
+          args: Prisma.SPPSettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SPPSettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload>
+        }
+        findMany: {
+          args: Prisma.SPPSettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload>[]
+        }
+        create: {
+          args: Prisma.SPPSettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload>
+        }
+        createMany: {
+          args: Prisma.SPPSettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SPPSettingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload>[]
+        }
+        delete: {
+          args: Prisma.SPPSettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload>
+        }
+        update: {
+          args: Prisma.SPPSettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.SPPSettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SPPSettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SPPSettingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload>[]
+        }
+        upsert: {
+          args: Prisma.SPPSettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SPPSettingPayload>
+        }
+        aggregate: {
+          args: Prisma.SPPSettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSPPSetting>
+        }
+        groupBy: {
+          args: Prisma.SPPSettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SPPSettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SPPSettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SPPSettingCountAggregateOutputType> | number
+        }
+      }
+    }
     SchoolClass: {
       payload: Prisma.$SchoolClassPayload<ExtArgs>
       fields: Prisma.SchoolClassFieldRefs
@@ -1686,6 +1761,17 @@ export const ScheduleScalarFieldEnum = {
 } as const
 
 export type ScheduleScalarFieldEnum = (typeof ScheduleScalarFieldEnum)[keyof typeof ScheduleScalarFieldEnum]
+
+
+export const SPPSettingScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  amount: 'amount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SPPSettingScalarFieldEnum = (typeof SPPSettingScalarFieldEnum)[keyof typeof SPPSettingScalarFieldEnum]
 
 
 export const SchoolClassScalarFieldEnum = {
@@ -2029,6 +2115,7 @@ export type GlobalOmitConfig = {
   teacherComplaint?: Prisma.TeacherComplaintOmit
   subject?: Prisma.SubjectOmit
   schedule?: Prisma.ScheduleOmit
+  sPPSetting?: Prisma.SPPSettingOmit
   schoolClass?: Prisma.SchoolClassOmit
 }
 

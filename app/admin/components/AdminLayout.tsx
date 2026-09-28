@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { logoutAdmin } from "../login/actions";
+import { usePathname } from "next/navigation";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -11,16 +14,27 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
   const menuItems = [
     { label: "Dashboard", href: "/admin/dashboard" },
     { label: "Data Siswa", href: "/admin/siswa" },
-    { label: "Kelola Siswa", href: "/admin/kelola-siswa" },
+    { label: "Kelola Siswa", href: "/admin/kelolasiswa" },
     { label: "Access Code", href: "/admin/accescode" },
     { label: "Guru", href: "/admin/guru" },
     { label: "Kelas & Jurusan", href: "/admin/kelas" },
     { label: "Jadwal Pelajaran", href: "/admin/jadwal" },
     { label: "Absensi", href: "/admin/absensi" },
     { label: "Nilai", href: "/admin/nilai" },
-    { label: "SPP & Pembayaran", href: "/admin/spp" },
+    { label: "SPP & Pembayaran", href: "/admin/spp", children: [
+      { label: "SPP", href: "/admin/spp" },
+      { label: "Pembayaran", href: "/admin/pembayaran" },
+    ]},
     { label: "Pengumuman", href: "/admin/pengumuman" },
   ];
+
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
+    "/admin/spp": true,
+  });
+
+  const toggleMenu = (href: string) => {
+    setOpenMenus(prev => ({ ...prev, [href]: !prev[href] }));
+  };
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-sans flex flex-col">
@@ -50,6 +64,48 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
         <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-stone-200 bg-white p-4 sm:p-6 flex flex-col gap-1 md:sticky md:top-16 md:h-[calc(100vh-64px)] md:overflow-y-auto">
           <div className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2 px-3">Menu Utama</div>
           {menuItems.map((item) => {
+            const isParentActive = activePath === item.href || (item.children && item.children.some(c => c.href === activePath));
+            const hasChildren = !!item.children;
+            const isOpen = openMenus[item.href] ?? false;
+            
+            if (hasChildren) {
+              return (
+                <div key={item.href} className="flex flex-col">
+                  <button
+                    onClick={() => toggleMenu(item.href)}
+                    className={`flex items-center justify-between w-full px-3 py-2 rounded-md font-medium text-sm transition ${
+                      isParentActive
+                        ? "bg-emerald-50 text-emerald-900 font-semibold"
+                        : "text-stone-700 hover:bg-stone-100"
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    <span className={`transform transition-transform ${isOpen ? "rotate-90" : ""}`}>›</span>
+                  </button>
+                  {isOpen && (
+                    <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-stone-200 pl-3">
+                      {item.children.map((child) => {
+                        const isChildActive = activePath === child.href;
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className={`px-3 py-2 rounded-md font-medium text-sm transition ${
+                              isChildActive
+                                ? "bg-emerald-50 text-emerald-900 font-semibold"
+                                : "text-stone-700 hover:bg-stone-100"
+                            }`}
+                          >
+                            {child.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            
             const isActive = activePath === item.href;
             return (
               <Link

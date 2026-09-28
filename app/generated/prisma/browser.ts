@@ -83,6 +83,11 @@ export type Subject = Prisma.SubjectModel
  */
 export type Schedule = Prisma.ScheduleModel
 /**
+ * Model SPPSetting
+ * 
+ */
+export type SPPSetting = Prisma.SPPSettingModel
+/**
  * Model SchoolClass
  * 
  */

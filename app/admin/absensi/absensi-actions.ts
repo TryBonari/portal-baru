@@ -6,22 +6,36 @@ import { checkAdminAuth } from "@/lib/admin-auth";
 
 type AttendanceInput = {
   studentId: number;
-  date: string;
   status: string;
   note?: string;
 };
 
 export async function saveAttendances(
-  classId: number,
-  dateStr: string,
-  items: AttendanceInput[]
+  prevState: any,
+  formData: FormData
 ): Promise<{ success: boolean; message: string }> {
   try {
     await checkAdminAuth();
-
+    
+    const classId = parseInt(formData.get("classId") as string, 10);
+    const dateStr = formData.get("dateStr") as string;
+    
     if (!dateStr) return { success: false, message: "Tanggal wajib diisi." };
     const [yy, mm, dd] = dateStr.split("-").map(Number);
     const date = new Date(yy, mm - 1, dd, 12, 0, 0, 0);
+    
+    const items: AttendanceInput[] = [];
+    formData.forEach((value, key) => {
+      if (key.startsWith("status_")) {
+        const studentId = parseInt(key.replace("status_", ""), 10);
+        const note = formData.get(`note_${studentId}`) as string;
+        if (value) {
+          items.push({ studentId, status: value as string, note: note || undefined });
+        }
+      }
+    });
+
+    if (items.length === 0) return { success: false, message: "Pilih status untuk minimal satu siswa." };
 
     const validStatuses = ["HADIR", "SAKIT", "IZIN", "ALPA"];
     for (const it of items) {

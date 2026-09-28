@@ -64,6 +64,7 @@ export const ModelName = {
   TeacherComplaint: 'TeacherComplaint',
   Subject: 'Subject',
   Schedule: 'Schedule',
+  SPPSetting: 'SPPSetting',
   SchoolClass: 'SchoolClass'
 } as const
 
@@ -264,6 +265,17 @@ export const ScheduleScalarFieldEnum = {
 } as const
 
 export type ScheduleScalarFieldEnum = (typeof ScheduleScalarFieldEnum)[keyof typeof ScheduleScalarFieldEnum]
+
+
+export const SPPSettingScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  amount: 'amount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SPPSettingScalarFieldEnum = (typeof SPPSettingScalarFieldEnum)[keyof typeof SPPSettingScalarFieldEnum]
 
 
 export const SchoolClassScalarFieldEnum = {

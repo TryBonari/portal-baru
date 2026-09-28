@@ -240,6 +240,16 @@ model Schedule {
   @@index([teacherId])
 }
 
+model SPPSetting {
+  id           Int          @id @default(autoincrement())
+  classId      Int          @unique
+  amount       Float
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  class        SchoolClass  @relation(fields: [classId], references: [id], onDelete: Cascade)
+}
+
 model SchoolClass {
   id           Int         @id @default(autoincrement())
   grade        String
@@ -256,6 +266,7 @@ model SchoolClass {
   homeroomTeacher Teacher? @relation(fields: [homeroomTeacherId], references: [id], onDelete: SetNull)
   students     Student[]
   schedules    Schedule[]
+  sppSetting   SPPSetting?
 
   @@unique([grade, number, departmentId])
   @@index([departmentId])

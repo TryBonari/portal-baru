@@ -34,7 +34,7 @@ export default async function KelolaSiswaPage({
     : null;
 
   return (
-    <AdminLayout activePath="/admin/kelola-siswa">
+    <AdminLayout activePath="/admin/kelolasiswa">
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-stone-900">Kelola Siswa Berdasarkan Kelas</h1>
         <p className="text-sm text-stone-600 mt-1">Pilih filter di sebelah kiri untuk melihat dan mengelola daftar siswa.</p>
@@ -77,18 +77,7 @@ export default async function KelolaSiswaPage({
         {/* Tabel / Konten di Kanan */}
         <div className="md:col-span-3 bg-white border border-stone-200 rounded-lg shadow-sm overflow-hidden">
           {selectedClass ? (
-            <div>
-              <div className="px-6 py-4 bg-stone-50 border-b border-stone-200 flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-stone-900 text-base">
-                    Kelas {selectedClass.grade} {selectedClass.department?.code ?? ""} • Rombel {selectedClass.number}
-                  </h3>
-                  <p className="text-xs text-stone-500">Total: {selectedClass.students.length} siswa</p>
-                </div>
-              </div>
-
-              <KelolaSiswaClient students={selectedClass.students} availableClasses={availableClasses} />
-            </div>
+            <KelolaSiswaClient selectedClass={selectedClass} availableClasses={availableClasses} />
           ) : (
             <div className="p-12 text-center text-stone-400 text-sm">
               Silakan pilih kelas dan rombel di sebelah kiri lalu klik <strong className="text-stone-700">Tampilkan Siswa</strong>.
