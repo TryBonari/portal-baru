@@ -365,14 +365,6 @@ export type SPPSettingNullableScalarRelationFilter = {
   isNot?: Prisma.SPPSettingWhereInput | null
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type SPPSettingCreateNestedOneWithoutClassInput = {
   create?: Prisma.XOR<Prisma.SPPSettingCreateWithoutClassInput, Prisma.SPPSettingUncheckedCreateWithoutClassInput>
   connectOrCreate?: Prisma.SPPSettingCreateOrConnectWithoutClassInput

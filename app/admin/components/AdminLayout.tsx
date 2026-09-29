@@ -24,6 +24,7 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
     { label: "SPP & Pembayaran", href: "/admin/spp", children: [
       { label: "SPP", href: "/admin/spp" },
       { label: "Pembayaran", href: "/admin/pembayaran" },
+      { label: "Status", href: "/admin/spp/status" },
     ]},
     { label: "Pengumuman", href: "/admin/pengumuman" },
   ];
@@ -123,7 +124,7 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
           })}
         </aside>
 
-        <main className="flex-1 p-4 sm:p-8 flex flex-col gap-6 max-w-7xl">
+        <main className="flex-1 p-4 sm:p-8 flex flex-col gap-6 min-w-0 max-w-7xl">
           {children}
         </main>
       </div>
