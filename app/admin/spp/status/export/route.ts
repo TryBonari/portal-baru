@@ -62,7 +62,7 @@ export async function GET(request: Request) {
   const monthObj = months.find((m) => m.number === monthNum);
   const monthName = monthObj ? monthObj.name : "Bulan";
 
-  let csvRows = [];
+  const csvRows = [];
   csvRows.push(["No", "Nama Siswa", "NIS", `Status SPP (${monthName})`].join(","));
 
   students.forEach((s, idx) => {

@@ -1,9 +1,5 @@
 "use client";
-import { useState } from "react";
-import { DeleteStudentButton } from "./DeleteStudentButton";
-import StudentEditForm from "./StudentEditForm";
 
-type Cls = { id: number; grade: string; number: number; departmentId: number | null; department: { code: string; name: string } | null };
 type Student = {
   id: number;
   name: string;

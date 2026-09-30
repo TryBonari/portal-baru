@@ -42,7 +42,7 @@ export default async function SPPStatusIndexPage({ searchParams }: PageProps) {
         orderBy: { name: "asc" },
       });
 
-      let paymentsMap: Record<string, boolean> = {};
+      const paymentsMap: Record<string, boolean> = {};
       if (students.length > 0 && selectedYearId) {
         const studentIds = students.map((s) => s.id);
         const payments = await prisma.payment.findMany({

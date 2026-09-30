@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { checkAdminAuth } from "@/lib/admin-auth";
 
 export async function createComplaintAction(
   prevState: any,

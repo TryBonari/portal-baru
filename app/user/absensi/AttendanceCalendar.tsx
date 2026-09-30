@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 
 type AttendanceRecord = {
   date: string; // YYYY-MM-DD
@@ -53,6 +54,13 @@ export default function AttendanceCalendar({
       setCurrentMonth((prev) => prev + 1);
     }
   };
+
+  const handleGoToday = () => {
+    setCurrentYear(today.getFullYear());
+    setCurrentMonth(today.getMonth());
+  };
+
+  const isCurrentMonth = currentYear === today.getFullYear() && currentMonth === today.getMonth();
 
   // Summary counts for the selected month
   let hadirCount = 0;
@@ -125,16 +133,26 @@ export default function AttendanceCalendar({
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-2 border border-stone-300 rounded-md hover:bg-stone-50 text-stone-700 text-sm font-semibold transition"
+              className="flex items-center gap-1.5 p-2 border border-stone-300 rounded-md hover:bg-stone-50 text-stone-700 text-sm font-semibold transition"
             >
+              <CaretLeft size={14} weight="regular" />
               Bulan Lalu
             </button>
             <button
               type="button"
+              onClick={handleGoToday}
+              disabled={isCurrentMonth}
+              className="p-2 border rounded-md text-sm font-semibold transition bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 disabled:bg-stone-100 disabled:text-stone-400 disabled:border-stone-200 disabled:cursor-not-allowed"
+            >
+              Bulan Ini
+            </button>
+            <button
+              type="button"
               onClick={handleNextMonth}
-              className="p-2 border border-stone-300 rounded-md hover:bg-stone-50 text-stone-700 text-sm font-semibold transition"
+              className="flex items-center gap-1.5 p-2 border border-stone-300 rounded-md hover:bg-stone-50 text-stone-700 text-sm font-semibold transition"
             >
               Bulan Depan
+              <CaretRight size={14} weight="regular" />
             </button>
           </div>
         </div>

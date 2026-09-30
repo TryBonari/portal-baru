@@ -70,7 +70,7 @@ export async function createAcademicYearAction(prevState: any, formData: FormDat
         },
       },
     });
-
+    // Menghilangkan penggunaan variabel `newAY` yang tidak terpakai
     revalidatePath("/admin/nilai");
     return { success: true, message: `Tahun ajaran ${name} berhasil dibuat.` };
   } catch (error) {
@@ -279,7 +279,6 @@ export async function importGradeExcel(
     utsScore?: number;
     uasScore?: number;
   }[] = [];
-  const debugNotRegistered: string[] = [];
 
   for (const row of rows) {
     const rawName = row["Nama Siswa"] ? String(row["Nama Siswa"]).trim() : "";

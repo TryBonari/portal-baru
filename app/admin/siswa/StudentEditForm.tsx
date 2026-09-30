@@ -4,7 +4,6 @@ import { useActionState, useEffect } from "react";
 import { updateStudentAction } from "./update-action";
 import { useToast } from "@/lib/ToastContext";
 
-type Cls = { id: number; grade: string; number: number; departmentId: number | null; department: { code: string } | null };
 type Student = {
   id: number;
   name: string;
@@ -21,12 +20,12 @@ type Student = {
 
 export default function StudentEditForm({
   student,
-  availableClasses,
   onClose,
+  availableClasses: _availableClasses,
 }: {
   student: Student;
-  availableClasses: Cls[];
   onClose: () => void;
+  availableClasses?: unknown;
 }) {
   const { showError, showSuccess } = useToast();
   const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {

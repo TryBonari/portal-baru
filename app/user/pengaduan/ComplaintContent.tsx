@@ -10,16 +10,6 @@ type Teacher = {
   subjects: string | null;
 };
 
-type Complaint = {
-  id: number;
-  subject: string;
-  message: string;
-  createdAt: Date;
-  teacher: {
-    name: string;
-  };
-};
-
 export function ComplaintContent({ 
   teachers, 
   studentId, 
@@ -27,7 +17,7 @@ export function ComplaintContent({
 }: { 
   teachers: Teacher[]; 
   studentId: number; 
-  initialComplaints: any[] 
+  initialComplaints: Array<{ id: number; subject: string; message: string; createdAt: Date | string; teacher: { name: string } }> 
 }) {
   const { showError, showSuccess } = useToast();
   const [search, setSearch] = useState("");

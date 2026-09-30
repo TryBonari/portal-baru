@@ -3,6 +3,7 @@ import { checkAdminAuth } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import GradeTable from "../GradeTable";
+import { NavArrowLeft } from "../NavIcons";
 
 export const dynamic = "force-dynamic";
 
@@ -70,7 +71,8 @@ export default async function EditNilaiPage({
             href={`/admin/nilai?academicYearId=${ayId}&classId=${classId}&subjectId=${subId}&semesterId=${semId}`}
             className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 transition mb-3"
           >
-            ← Kembali ke Preview
+            <NavArrowLeft size={14} weight="regular" />
+            Kembali ke Preview
           </Link>
           <h1 className="text-2xl font-bold text-stone-900">Edit Nilai: {sub?.name}</h1>
           <p className="text-sm text-stone-600">Kelas {className} • {sem?.name} • {ay?.name}</p>

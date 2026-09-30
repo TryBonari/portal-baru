@@ -34,6 +34,25 @@ export default async function UserDashboardPage() {
   }
   
   const student = user.student;
+  const currentMonth = new Date().getMonth() + 1; // 1-12
+  const currentYearId = (await prisma.academicYear.findFirst({ where: { isActive: true } }))?.id;
+
+  const payment = currentYearId ? await prisma.payment.findFirst({
+    where: { 
+      studentId: student.id,
+      academicYearId: currentYearId,
+      month: currentMonth
+    }
+  }) : null;
+
+  // Fallback to SPPSetting if payment record doesn't exist yet
+  const sppSetting = student.classId ? await prisma.sPPSetting.findUnique({
+    where: { classId: student.classId }
+  }) : null;
+
+  const isPaid = payment?.isPaid ?? false;
+  const displayAmount = payment?.amount ?? sppSetting?.amount ?? 0;
+
   const announcements = await prisma.announcement.findMany({
     where: { isPublished: true },
     orderBy: { createdAt: "desc" },
@@ -80,9 +99,18 @@ export default async function UserDashboardPage() {
             </div>
           )}
         </div>
-        <div className="p-6 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-4">
-          <h2 className="text-lg font-semibold text-stone-900">Status SPP Bulan Ini</h2>
-          <div className="p-4 bg-stone-50 border border-stone-100 rounded-md text-sm text-stone-600">Tagihan SPP bulan ini belum tercatat lunas.</div>
+        <div className="flex flex-col gap-6">
+          <div className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm flex flex-col gap-2">
+            <h2 className="text-sm font-semibold text-stone-900">Status SPP Bulan Ini</h2>
+            <div className={`px-3 py-2.5 border rounded-md text-xs flex items-center justify-between gap-3 ${isPaid ? "bg-emerald-50 border-emerald-100 text-emerald-800" : "bg-red-50 border-red-100 text-red-800"}`}>
+              <span className="font-medium leading-none">
+                {isPaid ? "Lunas" : "Belum lunas"}
+              </span>
+              {displayAmount > 0 && (
+                <span className="font-semibold whitespace-nowrap">Rp {displayAmount.toLocaleString("id-ID")}</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

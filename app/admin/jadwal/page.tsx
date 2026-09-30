@@ -4,6 +4,7 @@ import { checkAdminAuth } from "@/lib/admin-auth";
 import Link from "next/link";
 import { JadwalForm, SubjectForm } from "./jadwal-forms";
 import { ScheduleTimetable } from "./ScheduleTimetable";
+import { NavArrowRight } from "../nilai/NavIcons";
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +68,7 @@ export default async function AdminJadwalPage({
                 </div>
                 <div className="text-xs text-stone-500 mt-0.5">{c.department?.name ?? "Tanpa jurusan"}</div>
               </div>
-              <span className="w-8 h-8 rounded-full bg-stone-100 group-hover:bg-emerald-900 group-hover:text-white flex items-center justify-center text-stone-500 transition">→</span>
+              <span className="w-8 h-8 rounded-full bg-stone-100 group-hover:bg-emerald-900 group-hover:text-white flex items-center justify-center text-stone-500 transition"><NavArrowRight size={16} weight="regular" /></span>
             </Link>
           ))}
         </div>
@@ -117,7 +118,7 @@ export default async function AdminJadwalPage({
             </p>
           </div>
           <Link href="/admin/jadwal" className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-md border border-stone-300 text-stone-700 hover:bg-stone-100 w-fit">
-            ← Ganti kelas
+            Ganti kelas
           </Link>
         </div>
 

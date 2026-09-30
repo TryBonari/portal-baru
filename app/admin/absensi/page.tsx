@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import AttendanceTable from "./AttendanceTable";
 import ExcelControls from "./ExcelControls";
+import { NavArrowRight } from "../nilai/NavIcons";
 
 export const dynamic = "force-dynamic";
 
@@ -40,10 +41,12 @@ export default async function AdminAbsensiPage({ searchParams }: { searchParams:
         <div><h1 className="text-2xl font-bold tracking-tight text-stone-900">Absensi</h1><p className="text-sm text-stone-600 mt-1">Pilih kelas untuk mengelola absensi.</p></div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {classes.map((c) => (
-            <Link key={c.id} href={`/admin/absensi?classId=${c.id}&date=${selectedDate}`} className="bg-white border border-stone-200 rounded-lg p-5 hover:border-emerald-600 hover:shadow-md transition flex items-center justify-between group">
-              <div><div className="font-mono font-bold text-emerald-900 text-lg">{c.grade} {c.department?.code ?? ""} {c.number}</div><div className="text-xs text-stone-500">{c.department?.name ?? "Tanpa jurusan"}</div></div>
-              <span className="w-8 h-8 rounded-full bg-stone-100 group-hover:bg-emerald-900 group-hover:text-white flex items-center justify-center">→</span>
-            </Link>
+              <Link key={c.id} href={`/admin/absensi?classId=${c.id}&date=${selectedDate}`} className="bg-white border border-stone-200 rounded-lg p-5 hover:border-emerald-600 hover:shadow-md transition flex items-center justify-between group">
+                <div><div className="font-mono font-bold text-emerald-900 text-lg">{c.grade} {c.department?.code ?? ""} {c.number}</div><div className="text-xs text-stone-500">{c.department?.name ?? "Tanpa jurusan"}</div></div>
+                <span className="w-8 h-8 rounded-full bg-stone-100 group-hover:bg-emerald-900 group-hover:text-white flex items-center justify-center">
+                  <NavArrowRight size={16} weight="regular" />
+                </span>
+              </Link>
           ))}
         </div>
       </AdminLayout>

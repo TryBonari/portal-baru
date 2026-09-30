@@ -5,7 +5,7 @@ import Link from "next/link";
 import GradeExcelControls from "./GradeExcelControls";
 import AcademicYearForm from "./AcademicYearForm";
 import AcademicYearCard from "./AcademicYearCard";
-import GradeTable from "./GradeTable";
+import { NavArrowLeft, NavArrowRight } from "./NavIcons";
 
 export const dynamic = "force-dynamic";
 
@@ -81,13 +81,12 @@ export default async function AdminNilaiPage({
       <AdminLayout activePath="/admin/nilai">
         <div className="mb-6">
           <div className="mb-3">
-            <Link
-              href="/admin/nilai"
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:text-emerald-800 transition shadow-sm"
-            >
-              <span>←</span>
-              <span>Ganti Tahun Ajaran</span>
-            </Link>
+              <Link
+                href="/admin/nilai"
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:text-emerald-800 transition shadow-sm"
+              >
+                <NavArrowLeft size={14} weight="regular" />
+              </Link>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-stone-900">Pengelolaan Nilai</h1>
           <p className="text-sm text-stone-600 mt-1">Pilih kelas untuk mengelola nilai siswa.</p>
@@ -105,8 +104,8 @@ export default async function AdminNilaiPage({
                 </div>
                 <div className="text-xs text-stone-500">{c.department?.name ?? "Tanpa jurusan"}</div>
               </div>
-              <span className="w-8 h-8 rounded-full bg-stone-100 group-hover:bg-emerald-900 group-hover:text-white flex items-center justify-center">
-                →
+              <span className="w-8 h-8 rounded-full bg-stone-100 group-hover:bg-emerald-900 group-hover:text-white flex items-center justify-center text-stone-500 transition">
+                <NavArrowRight size={16} weight="regular" />
               </span>
             </Link>
           ))}
@@ -146,13 +145,13 @@ export default async function AdminNilaiPage({
       <AdminLayout activePath="/admin/nilai">
         <div className="mb-6">
           <div className="mb-3">
-            <Link
-              href={`/admin/nilai?academicYearId=${selectedAcademicYearId}`}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:text-emerald-800 transition shadow-sm"
-            >
-              <span>←</span>
-              <span>Ganti Kelas</span>
-            </Link>
+              <Link
+                href={`/admin/nilai?academicYearId=${selectedAcademicYearId}`}
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:text-emerald-800 transition shadow-sm"
+              >
+                <NavArrowLeft size={14} weight="regular" />
+                <span>Ganti Kelas</span>
+              </Link>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-stone-900">Input Nilai - {classNameStr}</h1>
           <p className="text-sm text-stone-600 mt-1">Tahun Ajaran: {selectedAY?.name}</p>
@@ -228,17 +227,6 @@ export default async function AdminNilaiPage({
   const gradeMap = new Map(grades.map((g) => [g.studentId, g]));
   const classNameStr = `${selectedClass.grade ?? ""} ${selectedClass.department?.code ?? ""} ${selectedClass.number ?? ""}`.trim();
 
-  const initialRows = selectedClass.students.map((s) => {
-    const g = gradeMap.get(s.id);
-    return {
-      studentId: s.id,
-      name: s.name,
-      assignmentScore: g?.assignmentScore != null ? String(g.assignmentScore) : "",
-      utsScore: g?.utsScore != null ? String(g.utsScore) : "",
-      uasScore: g?.uasScore != null ? String(g.uasScore) : "",
-    };
-  });
-
   return (
     <AdminLayout activePath="/admin/nilai">
       <div className="flex flex-col gap-6">
@@ -249,7 +237,7 @@ export default async function AdminNilaiPage({
                 href={`/admin/nilai?academicYearId=${selectedAcademicYearId}&classId=${selectedClassId}`}
                 className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:text-emerald-800 transition shadow-sm"
               >
-                <span>←</span>
+                <NavArrowLeft size={14} weight="regular" />
                 <span>Ganti Mapel/Semester</span>
               </Link>
             </div>

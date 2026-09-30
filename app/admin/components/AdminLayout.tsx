@@ -3,7 +3,22 @@
 import Link from "next/link";
 import { ReactNode, useState } from "react";
 import { logoutAdmin } from "../login/actions";
-import { usePathname } from "next/navigation";
+import { 
+  SquaresFour, 
+  Users, 
+  UserCheck, 
+  Key, 
+  ChalkboardTeacher, 
+  Buildings, 
+  CalendarBlank, 
+  CheckSquare, 
+  GraduationCap, 
+  Wallet, 
+  CreditCard, 
+  ChartPieSlice, 
+  Megaphone,
+  CaretDown
+} from "@phosphor-icons/react";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -12,21 +27,21 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children, activePath }: AdminLayoutProps) {
   const menuItems = [
-    { label: "Dashboard", href: "/admin/dashboard" },
-    { label: "Data Siswa", href: "/admin/siswa" },
-    { label: "Kelola Siswa", href: "/admin/kelolasiswa" },
-    { label: "Access Code", href: "/admin/accescode" },
-    { label: "Guru", href: "/admin/guru" },
-    { label: "Kelas & Jurusan", href: "/admin/kelas" },
-    { label: "Jadwal Pelajaran", href: "/admin/jadwal" },
-    { label: "Absensi", href: "/admin/absensi" },
-    { label: "Nilai", href: "/admin/nilai" },
-    { label: "SPP & Pembayaran", href: "/admin/spp", children: [
-      { label: "SPP", href: "/admin/spp" },
-      { label: "Pembayaran", href: "/admin/pembayaran" },
-      { label: "Status", href: "/admin/spp/status" },
+    { label: "Dashboard", href: "/admin/dashboard", icon: SquaresFour },
+    { label: "Data Siswa", href: "/admin/siswa", icon: Users },
+    { label: "Kelola Siswa", href: "/admin/kelolasiswa", icon: UserCheck },
+    { label: "Access Code", href: "/admin/accescode", icon: Key },
+    { label: "Guru", href: "/admin/guru", icon: ChalkboardTeacher },
+    { label: "Kelas & Jurusan", href: "/admin/kelas", icon: Buildings },
+    { label: "Jadwal Pelajaran", href: "/admin/jadwal", icon: CalendarBlank },
+    { label: "Absensi", href: "/admin/absensi", icon: CheckSquare },
+    { label: "Nilai", href: "/admin/nilai", icon: GraduationCap },
+    { label: "Keuangan", href: "/admin/spp", icon: Wallet, children: [
+      { label: "SPP", href: "/admin/spp", icon: Wallet },
+      { label: "Pembayaran", href: "/admin/pembayaran", icon: CreditCard },
+      { label: "Status", href: "/admin/spp/status", icon: ChartPieSlice },
     ]},
-    { label: "Pengumuman", href: "/admin/pengumuman" },
+    { label: "Pengumuman", href: "/admin/pengumuman", icon: Megaphone },
   ];
 
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
@@ -68,6 +83,7 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
             const isParentActive = activePath === item.href || (item.children && item.children.some(c => c.href === activePath));
             const hasChildren = !!item.children;
             const isOpen = openMenus[item.href] ?? false;
+            const Icon = item.icon;
             
             if (hasChildren) {
               return (
@@ -80,23 +96,28 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
                         : "text-stone-700 hover:bg-stone-100"
                     }`}
                   >
-                    <span>{item.label}</span>
-                    <span className={`transform transition-transform ${isOpen ? "rotate-90" : ""}`}>›</span>
+                    <div className="flex items-center gap-3">
+                      <Icon size={20} weight={isParentActive ? "fill" : "regular"} />
+                      <span>{item.label}</span>
+                    </div>
+                    <CaretDown size={16} className={`transform transition-transform ${isOpen ? "rotate-180" : ""}`} />
                   </button>
                   {isOpen && (
                     <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-stone-200 pl-3">
                       {item.children.map((child) => {
                         const isChildActive = activePath === child.href;
+                        const ChildIcon = child.icon;
                         return (
                           <Link
                             key={child.href}
                             href={child.href}
-                            className={`px-3 py-2 rounded-md font-medium text-sm transition ${
+                            className={`flex items-center gap-2.5 px-3 py-2 rounded-md font-medium text-sm transition ${
                               isChildActive
                                 ? "bg-emerald-50 text-emerald-900 font-semibold"
                                 : "text-stone-700 hover:bg-stone-100"
                             }`}
                           >
+                            <ChildIcon size={16} weight={isChildActive ? "fill" : "regular"} />
                             {child.label}
                           </Link>
                         );
@@ -112,12 +133,13 @@ export default function AdminLayout({ children, activePath }: AdminLayoutProps) 
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-3 py-2 rounded-md font-medium text-sm transition ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition ${
                   isActive
                     ? "bg-emerald-50 text-emerald-900 font-semibold"
                     : "text-stone-700 hover:bg-stone-100"
                 }`}
               >
+                <Icon size={20} weight={isActive ? "fill" : "regular"} />
                 {item.label}
               </Link>
             );

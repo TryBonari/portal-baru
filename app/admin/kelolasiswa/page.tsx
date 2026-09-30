@@ -1,7 +1,6 @@
 import AdminLayout from "../components/AdminLayout";
 import { checkAdminAuth } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
 import KelolaSiswaClient from "./KelolaSiswaClient";
 
 export const dynamic = "force-dynamic";
