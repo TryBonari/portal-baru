@@ -35,7 +35,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-sans flex flex-col">
       <header className="border-b border-stone-200 bg-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-md bg-emerald-900 flex items-center justify-center text-white font-bold text-sm tracking-wide">PS</div>
             <span className="font-semibold text-lg tracking-tight">Portal Siswa</span>
@@ -60,7 +60,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
         </div>
       </header>
 
-      <div className="flex flex-1 flex-col md:flex-row">
+      <div className="flex flex-1 flex-col md:flex-row relative">
         <UserSidebar />
         <main className="flex-1 p-6 md:p-8 flex flex-col gap-6 max-w-7xl min-w-0">{children}</main>
       </div>

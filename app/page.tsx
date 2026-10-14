@@ -56,9 +56,7 @@ export default function HalamanUtama() {
       <main className="flex-1">
         <section className="py-20 px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="flex flex-col gap-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-medium w-fit">
-              Sistem Informasi Akademik & Administrasi Terpadu
-            </div>
+            
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight text-stone-900">
               Portal Akademik & Administrasi Sekolah Terpusat
             </h1>
