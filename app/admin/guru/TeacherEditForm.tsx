@@ -16,16 +16,14 @@ type Teacher = {
 
 export function TeacherEditForm({ teacher, onClose }: { teacher: Teacher; onClose: () => void }) {
   const { showError, showSuccess } = useToast();
-  const [state, formAction, isPending] = useActionState(updateTeacherAction, { success: false, message: "" });
+  const [state, formAction, isPending] = useActionState(updateTeacherAction, { success: true, data: { message: "" } });
 
   useEffect(() => {
-    if (state.message) {
-      if (state.success) {
-        showSuccess(state.message);
-        onClose();
-      } else {
-        showError(state.message);
-      }
+    if (!state.success) {
+      showError(state.error);
+    } else if (state.data?.message && state.data.message !== "") {
+      showSuccess(state.data.message);
+      onClose();
     }
   }, [state, showError, showSuccess, onClose]);
 

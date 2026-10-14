@@ -2,23 +2,40 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 export async function createComplaintAction(
   prevState: any,
   formData: FormData
 ): Promise<{ success: boolean; message: string }> {
   try {
+    const cookieStore = await cookies();
+    const sessionUserId = cookieStore.get("student_session")?.value;
+    
+    if (!sessionUserId) {
+      return { success: false, message: "Sesi tidak valid. Silakan login kembali." };
+    }
+
+    const userId = parseInt(sessionUserId, 10);
+    const user = await prisma.user.findFirst({
+      where: { id: userId, role: "STUDENT" },
+      include: { student: true }
+    });
+
+    if (!user || !user.student) {
+      return { success: false, message: "Otorisasi gagal." };
+    }
+
     const rawTeacherId = formData.get("teacherId");
-    const rawStudentId = formData.get("studentId");
     const rawSubject = formData.get("subject");
     const rawMessage = formData.get("message");
 
-    if (!rawTeacherId || !rawStudentId) {
+    if (!rawTeacherId) {
       return { success: false, message: "Data pengaduan tidak lengkap." };
     }
 
     const teacherId = Number(rawTeacherId);
-    const studentId = Number(rawStudentId);
+    const studentId = user.student.id; // Use ID from session, not from formData
     const subject = typeof rawSubject === "string" ? rawSubject.trim() : "";
     const message = typeof rawMessage === "string" ? rawMessage.trim() : "";
 

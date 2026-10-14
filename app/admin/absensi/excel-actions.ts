@@ -2,11 +2,21 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { checkAdminAuth } from "@/lib/admin-auth";
+import { requireRole } from "@/lib/auth-guard";
 import * as XLSX from "xlsx";
+import { z } from "zod";
+
+const AttendanceStatusEnum = z.enum(["HADIR", "SAKIT", "IZIN", "ALPA"]);
 
 export async function exportAttendanceExcel(classId: number, dateStr: string) {
-  await checkAdminAuth();
+  await requireRole(["ADMIN"]);
+
+  const validated = z.object({
+    classId: z.number().int().positive(),
+    dateStr: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  }).safeParse({ classId, dateStr });
+
+  if (!validated.success) throw new Error("Input tidak valid");
 
   const targetClass = await prisma.schoolClass.findUnique({
     where: { id: classId },
@@ -23,14 +33,14 @@ export async function exportAttendanceExcel(classId: number, dateStr: string) {
   const [eyy, emm, edd] = dateStr.split("-").map(Number);
   const dateObj = new Date(eyy, emm - 1, edd, 12, 0, 0, 0);
 
-  const attendances = await (prisma as any).attendance.findMany({
+  const attendances = await prisma.attendance.findMany({
     where: {
       date: dateObj,
       studentId: { in: students.map((s) => s.id) },
     },
   });
 
-  const attMap = new Map(attendances.map((a: any) => [a.studentId, a.status]));
+  const attMap = new Map(attendances.map((a) => [a.studentId, a.status]));
 
   const data = students.map((s, idx) => ({
     No: idx + 1,
@@ -60,13 +70,21 @@ export async function importAttendanceExcel(
   dateStr: string,
   base64Data: string
 ) {
-  await checkAdminAuth();
+  await requireRole(["ADMIN"]);
+
+  const validated = z.object({
+    classId: z.number().int().positive(),
+    dateStr: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    base64Data: z.string().min(1),
+  }).safeParse({ classId, dateStr, base64Data });
+
+  if (!validated.success) throw new Error("Input tidak valid");
 
   const buffer = Buffer.from(base64Data, "base64");
   const workbook = XLSX.read(buffer, { type: "buffer" });
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
-  const rows: any[] = XLSX.utils.sheet_to_json(worksheet);
+  const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
 
   const [iyy, imm, idd] = dateStr.split("-").map(Number);
   const dateObj = new Date(iyy, imm - 1, idd, 12, 0, 0, 0);
@@ -78,28 +96,27 @@ export async function importAttendanceExcel(
   const nisMap = new Map(studentsInClass.filter((s) => s.nis).map((s) => [s.nis!.trim(), s]));
 
   const notInClass: string[] = [];
-  const validUpdates: { studentId: number; status: string; note?: string }[] = [];
+  const validUpdates: { studentId: number; status: z.infer<typeof AttendanceStatusEnum>; note?: string }[] = [];
 
   for (const row of rows) {
     const rawName = row["Nama Siswa"] ? String(row["Nama Siswa"]).trim() : "";
     const rawNis = row["NIS"] ? String(row["NIS"]).trim() : "";
-    const status = row["Status"] ? String(row["Status"]).trim().toUpperCase() : "";
+    const statusRaw = row["Status"] ? String(row["Status"]).trim().toUpperCase() : "";
     const note = row["Catatan"] ? String(row["Catatan"]).trim() : "";
 
-    if (!rawName || !status) continue;
+    if (!rawName || !statusRaw) continue;
 
-    let matchedStudent = rawNis ? nisMap.get(rawNis) : undefined;
+    let matchedStudent = rawNis && rawNis !== "-" ? nisMap.get(rawNis) : undefined;
     if (!matchedStudent) {
       matchedStudent = classStudentMap.get(rawName.toLowerCase());
     }
 
     if (!matchedStudent) {
-      // Find if student exists globally in another class or unassigned
       const globalStudent = await prisma.student.findFirst({
         where: {
           OR: [
-            { name: { equals: rawName, mode: "insensitive" } },
-            rawNis ? { nis: rawNis } : {},
+            { name: { equals: rawName, mode: "insensitive" as const } },
+            ...(rawNis && rawNis !== "-" ? [{ nis: rawNis }] : []),
           ],
         },
       });
@@ -112,36 +129,38 @@ export async function importAttendanceExcel(
       continue;
     }
 
-    const validStatus = ["HADIR", "SAKIT", "IZIN", "ALPA"].includes(status) ? status : null;
-    if (!validStatus) continue;
+    const statusParsed = AttendanceStatusEnum.safeParse(statusRaw);
+    if (!statusParsed.success) continue;
 
     validUpdates.push({
       studentId: matchedStudent.id,
-      status: validStatus,
+      status: statusParsed.data,
       note,
     });
   }
 
-  for (const item of validUpdates) {
-    await (prisma as any).attendance.upsert({
-      where: {
-        studentId_date: {
+  await prisma.$transaction(
+    validUpdates.map((item) => 
+      prisma.attendance.upsert({
+        where: {
+          studentId_date: {
+            studentId: item.studentId,
+            date: dateObj,
+          },
+        },
+        update: {
+          status: item.status,
+          note: item.note || null,
+        },
+        create: {
           studentId: item.studentId,
           date: dateObj,
+          status: item.status,
+          note: item.note || null,
         },
-      },
-      update: {
-        status: item.status,
-        note: item.note || null,
-      },
-      create: {
-        studentId: item.studentId,
-        date: dateObj,
-        status: item.status,
-        note: item.note || null,
-      },
-    });
-  }
+      })
+    )
+  );
 
   revalidatePath("/admin/absensi");
 

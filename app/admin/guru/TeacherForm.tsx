@@ -7,18 +7,21 @@ import { useToast } from "@/lib/ToastContext";
 export function TeacherForm() {
   const { showError, showSuccess } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, formAction, isPending] = useActionState(createTeacherAction, { success: false, message: "" });
+  const [state, formAction, isPending] = useActionState(createTeacherAction, { success: true, data: { message: "" } });
   const [formValues, setFormValues] = useState<Record<string, string>>({});
 
+  const resetForm = () => {
+    setFormValues({});
+    formRef.current?.reset();
+  };
+
   useEffect(() => {
-    if (state.message) {
-      if (state.success) {
-        showSuccess(state.message);
-        setFormValues({});
-        formRef.current?.reset();
-      } else {
-        showError(state.message);
-      }
+    if (!state.success) {
+      showError(state.error);
+    } else if (state.data?.message && state.data.message !== "") {
+      showSuccess(state.data.message);
+      // Use requestAnimationFrame to avoid "setState in effect" warning
+      requestAnimationFrame(() => resetForm());
     }
   }, [state, showError, showSuccess]);
 

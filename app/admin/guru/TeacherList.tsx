@@ -33,19 +33,22 @@ export function TeacherList({ teachers }: { teachers: Teacher[] }) {
   const [editing, setEditing] = useState<Teacher | null>(null);
   const [viewingInbox, setViewingInbox] = useState<Teacher | null>(null);
 
-  const [toggleState, toggleAction, togglePending] = useActionState(toggleTeacherStatusAction, { success: false, message: "" });
-  const [deleteState, deleteAction, deletePending] = useActionState(deleteTeacherAction, { success: false, message: "" });
+  const [toggleState, toggleAction, togglePending] = useActionState(toggleTeacherStatusAction, { success: true, data: { message: "" } });
+  const [deleteState, deleteAction, deletePending] = useActionState(deleteTeacherAction, { success: true, data: { message: "" } });
 
   useEffect(() => {
-    if (toggleState.message) {
-      if (toggleState.success) showSuccess(toggleState.message);
-      else showError(toggleState.message);
+    if (!toggleState.success) {
+      showError(toggleState.error);
+    } else if (toggleState.data?.message && toggleState.data.message !== "") {
+      showSuccess(toggleState.data.message);
     }
   }, [toggleState, showError, showSuccess]);
+  
   useEffect(() => {
-    if (deleteState.message) {
-      if (deleteState.success) showSuccess(deleteState.message);
-      else showError(deleteState.message);
+    if (!deleteState.success) {
+      showError(deleteState.error);
+    } else if (deleteState.data?.message && deleteState.data.message !== "") {
+      showSuccess(deleteState.data.message);
     }
   }, [deleteState, showError, showSuccess]);
 

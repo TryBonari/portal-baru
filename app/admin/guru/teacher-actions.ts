@@ -2,153 +2,146 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { checkAdminAuth } from "@/lib/admin-auth";
+import { requireRole, AuthResult } from "@/lib/auth-guard";
+import { z } from "zod";
 
-function isSafeError(msg: string) {
-  return msg.startsWith("Nama") || msg.startsWith("Kode") || msg.startsWith("Mata pelajaran") || msg.startsWith("ID") || msg.startsWith("Guru") || msg.startsWith("Tidak dapat");
-}
+const TeacherSchema = z.object({
+  name: z.string().min(2).max(100),
+  teacherCode: z.string().min(1).max(20).optional().or(z.literal("")),
+  subjects: z.string().optional().or(z.literal("")),
+  phone: z.string().optional().or(z.literal("")),
+  email: z.string().email().optional().or(z.literal("")),
+  isActive: z.boolean().default(true),
+});
 
-export async function createTeacherAction(prevState: any, formData: FormData): Promise<{ success: boolean; message: string }> {
+export async function createTeacherAction(
+  prevState: AuthResult<{ message: string }>,
+  formData: FormData
+): Promise<AuthResult<{ message: string }>> {
   try {
-    await checkAdminAuth();
-    const rawName = formData.get("name");
-    const rawTeacherCode = formData.get("teacherCode");
-    const rawSubjects = formData.get("subjects");
-    const rawPhone = formData.get("phone");
-    const rawEmail = formData.get("email");
-    const rawIsActive = formData.get("isActive");
+    await requireRole(["ADMIN"]);
+    
+    const raw = {
+      name: formData.get("name"),
+      teacherCode: formData.get("teacherCode"),
+      subjects: formData.get("subjects"),
+      phone: formData.get("phone"),
+      email: formData.get("email"),
+      isActive: formData.get("isActive") !== "false",
+    };
 
-    if (typeof rawName !== "string" || !rawName.trim()) {
-      return { success: false, message: "Nama guru wajib diisi." };
+    const parsed = TeacherSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0].message };
     }
 
-    const name = rawName.trim();
-    const teacherCode = typeof rawTeacherCode === "string" && rawTeacherCode.trim() ? rawTeacherCode.trim().toUpperCase() : null;
-    const subjects = typeof rawSubjects === "string" && rawSubjects.trim() ? rawSubjects.trim() : null;
-    const phone = typeof rawPhone === "string" && rawPhone.trim() ? rawPhone.trim() : null;
-    const email = typeof rawEmail === "string" && rawEmail.trim() ? rawEmail.trim() : null;
-    const isActive = rawIsActive === "false" ? false : true;
-
-    if (name.length < 2 || name.length > 100) {
-      return { success: false, message: "Nama harus 2-100 karakter." };
-    }
+    const { name, teacherCode, subjects, phone, email, isActive } = parsed.data;
 
     if (teacherCode) {
       const existing = await prisma.teacher.findUnique({ where: { teacherCode } });
-      if (existing) {
-        return { success: false, message: "Kode/NIP guru sudah digunakan." };
-      }
+      if (existing) return { success: false, error: "Kode/NIP guru sudah digunakan." };
     }
 
     await prisma.teacher.create({
       data: {
         name,
-        teacherCode,
-        subjects,
-        phone,
-        email,
+        teacherCode: teacherCode || null,
+        subjects: subjects || null,
+        phone: phone || null,
+        email: email || null,
         isActive,
       },
     });
 
     revalidatePath("/admin/guru");
-    return { success: true, message: "Data guru berhasil ditambahkan." };
-  } catch (e) {
+    return { success: true, data: { message: "Data guru berhasil ditambahkan." } };
+  } catch (e: unknown) {
     console.error("[createTeacherAction]", e);
-    const m = e instanceof Error ? e.message : "";
-    if (isSafeError(m)) return { success: false, message: m };
-    return { success: false, message: "Gagal menambahkan data guru. Silakan coba lagi." };
+    return { success: false, error: "Gagal menambahkan data guru. Silakan coba lagi." };
   }
 }
 
-export async function updateTeacherAction(prevState: any, formData: FormData): Promise<{ success: boolean; message: string }> {
+export async function updateTeacherAction(
+  prevState: AuthResult<{ message: string }>,
+  formData: FormData
+): Promise<AuthResult<{ message: string }>> {
   try {
-    await checkAdminAuth();
-    const rawId = formData.get("id");
-    const rawName = formData.get("name");
-    const rawTeacherCode = formData.get("teacherCode");
-    const rawSubjects = formData.get("subjects");
-    const rawPhone = formData.get("phone");
-    const rawEmail = formData.get("email");
-    const rawIsActive = formData.get("isActive");
+    await requireRole(["ADMIN"]);
+    
+    const id = Number(formData.get("id"));
+    if (!id || id <= 0) return { success: false, error: "ID guru tidak valid." };
 
-    if (typeof rawId !== "string" || !rawId.trim()) return { success: false, message: "ID guru tidak valid." };
-    const id = Number(rawId);
-    if (!Number.isInteger(id) || id <= 0) return { success: false, message: "ID guru tidak valid." };
+    const raw = {
+      name: formData.get("name"),
+      teacherCode: formData.get("teacherCode"),
+      subjects: formData.get("subjects"),
+      phone: formData.get("phone"),
+      email: formData.get("email"),
+      isActive: formData.get("isActive") !== "false",
+    };
 
-    if (typeof rawName !== "string" || !rawName.trim()) {
-      return { success: false, message: "Nama guru wajib diisi." };
+    const parsed = TeacherSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0].message };
     }
 
-    const name = rawName.trim();
-    const teacherCode = typeof rawTeacherCode === "string" && rawTeacherCode.trim() ? rawTeacherCode.trim().toUpperCase() : null;
-    const subjects = typeof rawSubjects === "string" && rawSubjects.trim() ? rawSubjects.trim() : null;
-    const phone = typeof rawPhone === "string" && rawPhone.trim() ? rawPhone.trim() : null;
-    const email = typeof rawEmail === "string" && rawEmail.trim() ? rawEmail.trim() : null;
-    const isActive = rawIsActive === "false" ? false : true;
-
-    if (name.length < 2 || name.length > 100) {
-      return { success: false, message: "Nama harus 2-100 karakter." };
-    }
+    const { name, teacherCode, subjects, phone, email, isActive } = parsed.data;
 
     const existing = await prisma.teacher.findUnique({ where: { id } });
-    if (!existing) return { success: false, message: "Data guru tidak ditemukan." };
+    if (!existing) return { success: false, error: "Data guru tidak ditemukan." };
 
-    if (teacherCode) {
+    if (teacherCode && teacherCode !== existing.teacherCode) {
       const conflict = await prisma.teacher.findUnique({ where: { teacherCode } });
-      if (conflict && conflict.id !== id) {
-        return { success: false, message: "Kode/NIP guru sudah digunakan." };
-      }
+      if (conflict) return { success: false, error: "Kode/NIP guru sudah digunakan." };
     }
 
     await prisma.teacher.update({
       where: { id },
       data: {
         name,
-        teacherCode,
-        subjects,
-        phone,
-        email,
+        teacherCode: teacherCode || null,
+        subjects: subjects || null,
+        phone: phone || null,
+        email: email || null,
         isActive,
       },
     });
 
     revalidatePath("/admin/guru");
-    return { success: true, message: "Data guru berhasil diperbarui." };
-  } catch (e) {
+    return { success: true, data: { message: "Data guru berhasil diperbarui." } };
+  } catch (e: unknown) {
     console.error("[updateTeacherAction]", e);
-    const m = e instanceof Error ? e.message : "";
-    if (isSafeError(m)) return { success: false, message: m };
-    return { success: false, message: "Gagal memperbarui data guru. Silakan coba lagi." };
+    return { success: false, error: "Gagal memperbarui data guru. Silakan coba lagi." };
   }
 }
 
-export async function deleteTeacherAction(prevState: any, formData: FormData): Promise<{ success: boolean; message: string }> {
+export async function deleteTeacherAction(
+  prevState: AuthResult<{ message: string }>,
+  formData: FormData
+): Promise<AuthResult<{ message: string }>> {
   try {
-    await checkAdminAuth();
-    const rawId = formData.get("id");
-    if (typeof rawId !== "string" || !rawId.trim()) return { success: false, message: "ID tidak valid." };
-    const id = Number(rawId);
-    if (!Number.isInteger(id) || id <= 0) return { success: false, message: "ID tidak valid." };
+    await requireRole(["ADMIN"]);
+    
+    const id = Number(formData.get("id"));
+    if (!id || id <= 0) return { success: false, error: "ID guru tidak valid." };
 
     const teacher = await prisma.teacher.findUnique({ where: { id } });
-    if (!teacher) return { success: false, message: "Data guru tidak ditemukan." };
+    if (!teacher) return { success: false, error: "Data guru tidak ditemukan." };
 
     await prisma.teacher.delete({ where: { id } });
     revalidatePath("/admin/guru");
-    return { success: true, message: "Data guru berhasil dihapus." };
-  } catch (e) {
+    return { success: true, data: { message: "Data guru berhasil dihapus." } };
+  } catch (e: unknown) {
     console.error("[deleteTeacherAction]", e);
-    const m = e instanceof Error ? e.message : "";
-    if (isSafeError(m)) return { success: false, message: m };
-    return { success: false, message: "Gagal menghapus guru. Silakan coba lagi." };
+    return { success: false, error: "Gagal menghapus guru. Silakan coba lagi." };
   }
 }
 
-export async function markComplaintsAsReadAction(teacherId: number): Promise<{ success: boolean }> {
+export async function markComplaintsAsReadAction(teacherId: number): Promise<AuthResult<void>> {
   try {
-    await checkAdminAuth();
-    if (!Number.isInteger(teacherId) || teacherId <= 0) return { success: false };
+    await requireRole(["ADMIN"]);
+    
+    if (!Number.isInteger(teacherId) || teacherId <= 0) return { success: false, error: "ID tidak valid." };
 
     await prisma.teacherComplaint.updateMany({
       where: { teacherId },
@@ -156,23 +149,25 @@ export async function markComplaintsAsReadAction(teacherId: number): Promise<{ s
     });
 
     revalidatePath("/admin/guru");
-    return { success: true };
-  } catch (e) {
+    return { success: true, data: undefined };
+  } catch (e: unknown) {
     console.error("[markComplaintsAsReadAction]", e);
-    return { success: false };
+    return { success: false, error: "Gagal memperbarui status pengaduan." };
   }
 }
 
-export async function toggleTeacherStatusAction(prevState: any, formData: FormData): Promise<{ success: boolean; message: string }> {
+export async function toggleTeacherStatusAction(
+  prevState: AuthResult<{ message: string }>,
+  formData: FormData
+): Promise<AuthResult<{ message: string }>> {
   try {
-    await checkAdminAuth();
-    const rawId = formData.get("id");
-    if (typeof rawId !== "string" || !rawId.trim()) return { success: false, message: "ID tidak valid." };
-    const id = Number(rawId);
-    if (!Number.isInteger(id) || id <= 0) return { success: false, message: "ID tidak valid." };
+    await requireRole(["ADMIN"]);
+    
+    const id = Number(formData.get("id"));
+    if (!id || id <= 0) return { success: false, error: "ID tidak valid." };
 
     const current = await prisma.teacher.findUnique({ where: { id } });
-    if (!current) return { success: false, message: "Data guru tidak ditemukan." };
+    if (!current) return { success: false, error: "Data guru tidak ditemukan." };
 
     await prisma.teacher.update({
       where: { id },
@@ -180,11 +175,9 @@ export async function toggleTeacherStatusAction(prevState: any, formData: FormDa
     });
 
     revalidatePath("/admin/guru");
-    return { success: true, message: "Status guru berhasil diperbarui." };
-  } catch (e) {
+    return { success: true, data: { message: "Status guru berhasil diperbarui." } };
+  } catch (e: unknown) {
     console.error("[toggleTeacherStatusAction]", e);
-    const m = e instanceof Error ? e.message : "";
-    if (isSafeError(m)) return { success: false, message: m };
-    return { success: false, message: "Gagal memperbarui status. Silakan coba lagi." };
+    return { success: false, error: "Gagal memperbarui status. Silakan coba lagi." };
   }
 }

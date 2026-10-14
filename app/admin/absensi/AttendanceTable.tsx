@@ -31,16 +31,14 @@ export default function AttendanceTable({
     { value: "ALPA", label: "Alpa", color: "bg-red-50 text-red-600 border-red-200" },
   ];
 
-  const [state, formAction, isPending] = useActionState(saveAttendances, { success: false, message: "" });
+  const [state, formAction, isPending] = useActionState(saveAttendances, { success: true, data: { message: "" } });
 
   useEffect(() => {
-    if (state.message) {
-      if (state.success) {
-        showSuccess(state.message);
-        setEditingRows({});
-      } else {
-        showError(state.message);
-      }
+    if (!state.success) {
+      showError(state.error);
+    } else if (state.data?.message) {
+      showSuccess(state.data.message);
+      setEditingRows({});
     }
   }, [state, showSuccess, showError]);
 

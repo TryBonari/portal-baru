@@ -30,11 +30,18 @@ const MENU = [
 export default function UserSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close sidebar on navigation
   useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+    if (mounted) {
+      setIsOpen(false);
+    }
+  }, [pathname, mounted]);
 
   // Prevent scroll when mobile menu is open
   useEffect(() => {

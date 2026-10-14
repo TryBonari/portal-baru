@@ -2,59 +2,90 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { checkAdminAuth } from "@/lib/admin-auth";
+import { requireRole, AuthResult } from "@/lib/auth-guard";
+import { z } from "zod";
 
-type AttendanceInput = {
-  studentId: number;
-  status: string;
-  note?: string;
-};
+const AttendanceStatusEnum = z.enum(["HADIR", "SAKIT", "IZIN", "ALPA"]);
+
+const SaveAttendancesSchema = z.object({
+  classId: z.coerce.number().int().positive(),
+  dateStr: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal harus YYYY-MM-DD"),
+  items: z.array(z.object({
+    studentId: z.coerce.number().int().positive(),
+    status: AttendanceStatusEnum,
+    note: z.string().max(500).optional().nullable(),
+  })).min(1, "Pilih status untuk minimal satu siswa"),
+});
 
 export async function saveAttendances(
-  prevState: any,
+  prevState: AuthResult<{ message: string }>,
   formData: FormData
-): Promise<{ success: boolean; message: string }> {
+): Promise<AuthResult<{ message: string }>> {
   try {
-    await checkAdminAuth();
+    await requireRole(["ADMIN"]);
     
-    const classId = parseInt(formData.get("classId") as string, 10);
-    const dateStr = formData.get("dateStr") as string;
+    // Parse initial form values
+    const classId = formData.get("classId");
+    const dateStr = formData.get("dateStr");
     
-    if (!dateStr) return { success: false, message: "Tanggal wajib diisi." };
-    const [yy, mm, dd] = dateStr.split("-").map(Number);
-    const date = new Date(yy, mm - 1, dd, 12, 0, 0, 0);
-    
-    const items: AttendanceInput[] = [];
+    // Extract dynamic items from FormData
+    const itemsRaw: Array<{ studentId: unknown; status: unknown; note: unknown }> = [];
     formData.forEach((value, key) => {
       if (key.startsWith("status_")) {
-        const studentId = parseInt(key.replace("status_", ""), 10);
-        const note = formData.get(`note_${studentId}`) as string;
+        const studentId = key.replace("status_", "");
+        const note = formData.get(`note_${studentId}`);
         if (value) {
-          items.push({ studentId, status: value as string, note: note || undefined });
+          itemsRaw.push({ 
+            studentId, 
+            status: value, 
+            note: note || null 
+          });
         }
       }
     });
 
-    if (items.length === 0) return { success: false, message: "Pilih status untuk minimal satu siswa." };
+    // Validate with Zod
+    const validated = SaveAttendancesSchema.safeParse({
+      classId,
+      dateStr,
+      items: itemsRaw,
+    });
 
-    const validStatuses = ["HADIR", "SAKIT", "IZIN", "ALPA"];
-    for (const it of items) {
-      if (!validStatuses.includes(it.status)) return { success: false, message: "Status tidak valid." };
-      if (it.note && it.note.length > 500) return { success: false, message: "Catatan terlalu panjang." };
+    if (!validated.success) {
+      return { 
+        success: false, 
+        error: validated.error.issues[0].message 
+      };
     }
 
-    for (const it of items) {
-      await prisma.attendance.upsert({
-        where: { studentId_date: { studentId: it.studentId, date } },
-        update: { status: it.status as any, note: it.note?.trim() || null },
-        create: { studentId: it.studentId, date, status: it.status as any, note: it.note?.trim() || null },
-      });
-    }
+    const { dateStr: validDateStr, items } = validated.data;
+    const [yy, mm, dd] = validDateStr.split("-").map(Number);
+    const date = new Date(yy, mm - 1, dd, 12, 0, 0, 0);
+    
+    // Perform upserts in a transaction for consistency
+    await prisma.$transaction(
+      items.map((it) => 
+        prisma.attendance.upsert({
+          where: { studentId_date: { studentId: it.studentId, date } },
+          update: { 
+            status: it.status, 
+            note: it.note?.trim() || null 
+          },
+          create: { 
+            studentId: it.studentId, 
+            date, 
+            status: it.status, 
+            note: it.note?.trim() || null 
+          },
+        })
+      )
+    );
 
     revalidatePath("/admin/absensi");
-    return { success: true, message: "Absensi berhasil disimpan." };
+    return { success: true, data: { message: "Absensi berhasil disimpan." } };
   } catch (e) {
     console.error("[saveAttendances]", e);
-    return { success: false, message: "Gagal menyimpan absensi." };
+    const msg = e instanceof Error ? e.message : "Gagal menyimpan absensi.";
+    return { success: false, error: msg };
   }
 }
